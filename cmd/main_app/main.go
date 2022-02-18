@@ -1,11 +1,11 @@
 package main
 
 import (
-	"../../internal/service"
 	"fmt"
+	"rut955_openwrt/internal/service"
 )
 
 func main() {
-	fmt.Println("hehehe")
-	service.Helo()
+	fmt.Println("RutOS test1")
+	fmt.Println(service.Helo())
 }
