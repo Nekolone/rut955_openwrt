@@ -2,48 +2,122 @@ package main
 
 import (
 	"log"
-	"net"
-	"os"
+	"rut955_openwrt/internal/client"
+	"rut955_openwrt/internal/server"
+	"sync"
 )
 
+type config struct {
+	connectionType string
+	clientIp       string
+}
+
 func main() {
-	strEcho := "hi python server"
-	servAddr := "192.168.100.107:11113"
-
-	tcpAddr, err := net.ResolveTCPAddr("tcp", servAddr)
+	configPath := "config_path"
+	err := launch(configPath)
 	if err != nil {
-		println("ResolveTCPAddr failed:", err.Error())
-		os.Exit(1)
-	}
-
-	conn, err := net.DialTCP("tcp", nil, tcpAddr)
-	if err != nil {
-		println("Dial failed:", err.Error())
-		os.Exit(1)
-	}
-
-	_, err = conn.Write([]byte(strEcho))
-	if err != nil {
-		println("Write to server failed:", err.Error())
-		os.Exit(1)
-	}
-
-	println("write to server = ", strEcho)
-
-	reply := make([]byte, 1024)
-
-	_, err = conn.Read(reply)
-	if err != nil {
-		println("Write to server failed:", err.Error())
-		os.Exit(1)
-	}
-
-	println("reply from server=", string(reply))
-
-	err = conn.Close()
-	if err != nil {
-		log.Fatal("Close error")
+		log.Fatal("launch error")
 		return
 	}
-
+	log.Println("service finished")
 }
+
+func launch(path string) error {
+
+	networkStatus := "start"
+
+	iterChan := make(chan string)
+	dataChan := make(chan string)
+
+	wg := sync.WaitGroup{}
+	wg.Add(2)
+
+	Config, err := getConfig(path)
+	if err == nil {
+		log.Println("config path error, using default config")
+		Config = config{
+			connectionType: "tcp",
+			clientIp:       "192.168.13.22:1488",
+		}
+	}
+
+	go func(wgp *sync.WaitGroup) {
+		err := startClient(&Config, &networkStatus, dataChan, iterChan)
+		defer wgp.Done()
+		if err != nil {
+			log.Fatal("client routine error")
+		}
+		log.Println("client stopped")
+	}(&wg)
+
+	go func(wgp *sync.WaitGroup) {
+		err := startServer(&Config, &networkStatus, dataChan, iterChan)
+		defer wgp.Done()
+		if err != nil {
+			log.Fatal("server routine error")
+		}
+		log.Println("server stopped")
+	}(&wg)
+
+	wg.Wait()
+	return nil
+}
+
+func getConfig(path string) (config, error) {
+	return config{}, nil
+}
+
+func startServer(conf *config, networkStatus *string, dataChan chan string, iterChan chan string) error {
+	server.Start(networkStatus, dataChan, iterChan)
+	return nil
+}
+
+func startClient(conf *config, networkStatus *string, dataChan chan string, iterChan chan string) error {
+	clientConnection, tcpAddr := client.Start(conf.clientIp, conf.connectionType, networkStatus, dataChan, iterChan)
+	go client.ReconnectingService(&tcpAddr, conf.connectionType, &clientConnection, networkStatus)
+	client.DataWorker(networkStatus, &clientConnection, dataChan, iterChan)
+	//Сделать стоп и рестарт
+	return nil
+}
+
+//func main() {
+//	strEcho := "hi python server"
+//	servAddr := "192.168.100.107:11113"
+//
+//	tcpAddr, err := net.ResolveTCPAddr("tcp", servAddr)
+//	if err != nil {
+//		log.Println("ResolveTCPAddr failed:", err.Error())
+//		os.Exit(1)
+//	}
+//
+//	conn, err := net.DialTCP("tcp", nil, tcpAddr)
+//	if err != nil {
+//		log.Println("Dial failed:", err.Error())
+//		os.Exit(1)
+//	}
+//
+//	_, err = conn.Write([]byte(strEcho))
+//	if err != nil {
+//		log.Println("Write to server failed:", err.Error())
+//		os.Exit(1)
+//	}
+//
+//	log.Println("write to server = ", strEcho)
+//
+//	reply := make([]byte, 1024)
+//
+//	_, err = conn.Read(reply)
+//	if err != nil {
+//		log.Println("Write to server failed:", err.Error())
+//		os.Exit(1)
+//	}
+//
+//	log.Println("reply from server=", string(reply))
+//
+//	err = conn.Close()
+//	if err != nil {
+//		log.Fatal("Close error")
+//		return
+//	}
+//
+//}
