@@ -29,11 +29,21 @@ func sendToDataChan(dataChan chan string, deviceDataChan chan string) {
 		getOutputs(), getAdc(), getIbutton(),
 	}
 	for _, params := range dataList {
-		log.Println(params)
-		log.Println(strings.Join(params, ","))
-		dataChan <- string("#D#" + strings.Join(attr, ";") + ";" + strings.Join(params, ",") + "\r\n")
+		log.Println(listToSrt(params, ","))
+		dataChan <- "#D#" + strings.Join(attr, ";") + ";" + listToSrt(params, ",") + "\r\n"
 	}
 
+}
+
+func listToSrt(params []string, delim string) string {
+	if len(params) == 0 {
+		return ""
+	}
+	var msg string
+	for i := 0; i < len(params)-1; i++ {
+		msg = params[i] + delim
+	}
+	return msg + params[len(params)-1]
 }
 func getOutboundIP() string {
 	conn, err := net.Dial("udp", "8.8.8.8:80")

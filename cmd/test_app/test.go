@@ -4,18 +4,12 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"time"
 )
 
 func main() {
-	data := make(chan int, 1000)
-	go hehe(data)
-	time.Sleep(20 * time.Second)
-	dd := []int{1}
-	for len(dd) < 10000000 {
-		dd = append(dd, <-data)
-	}
-	log.Println(dd)
+	list := []string{"4", "3", "2", "1"}
+	log.Println(len(list))
+	log.Println(list[len(list)-1])
 }
 
 func hehe(data chan int) {
