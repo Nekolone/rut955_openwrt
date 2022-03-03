@@ -2,37 +2,43 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net"
+	"time"
 )
 
 func main() {
-
-	testvar := 111
-	usethis(&testvar)
-	fmt.Println(testvar)
-
+	data := make(chan int, 1000)
+	go hehe(data)
+	time.Sleep(20 * time.Second)
+	dd := []int{1}
+	for len(dd) < 10000000 {
+		dd = append(dd, <-data)
+	}
+	log.Println(dd)
 }
 
-func usethis(i *int) {
-	fmt.Println(i)
-	*i = 222
-	fmt.Println(i)
-	anotherUse(i)
-}
-
-func anotherUse(i *int) {
-	fmt.Println(i)
-	*i = 2333
-	fmt.Println(i)
-}
-
-func setNewMsg(msg chan string) {
-	for i := 1; i < 100; i++ {
-		msg <- "some text"
+func hehe(data chan int) {
+	for i := 1; i < 10000000; i++ {
+		fmt.Println(i)
+		data <- i
 	}
 }
 
-func printMsg(msg chan string) {
-	for i := 1; i < 100; i++ {
-		fmt.Println(<-msg + "wq")
+// Get preferred outbound ip of this machine
+func GetOutboundIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer func(conn net.Conn) {
+		err := conn.Close()
+		if err != nil {
+			log.Println("cant close connection")
+		}
+	}(conn)
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP
 }

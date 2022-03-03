@@ -24,10 +24,7 @@ func main() {
 
 func launch(path string) error {
 
-	networkStatus := "start"
-
-	iterChan := make(chan string)
-	dataChan := make(chan string)
+	dataChan := make(chan string, 20)
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
@@ -37,12 +34,12 @@ func launch(path string) error {
 		log.Println("config path error, using default config")
 		Config = config{
 			connectionType: "tcp",
-			clientIp:       "192.168.13.22:1488",
+			clientIp:       "192.168.57.161:12332",
 		}
 	}
 
 	go func(wgp *sync.WaitGroup) {
-		err := startClient(&Config, &networkStatus, dataChan, iterChan)
+		err := startClient(&Config, dataChan)
 		defer wgp.Done()
 		if err != nil {
 			log.Fatal("client routine error")
@@ -51,7 +48,7 @@ func launch(path string) error {
 	}(&wg)
 
 	go func(wgp *sync.WaitGroup) {
-		err := startServer(&Config, &networkStatus, dataChan, iterChan)
+		err := startServer(dataChan)
 		defer wgp.Done()
 		if err != nil {
 			log.Fatal("server routine error")
@@ -67,15 +64,16 @@ func getConfig(path string) (config, error) {
 	return config{}, nil
 }
 
-func startServer(conf *config, networkStatus *string, dataChan chan string, iterChan chan string) error {
-	server.Start(networkStatus, dataChan, iterChan)
+func startServer(dataChan chan string) error {
+	server.Start(dataChan)
 	return nil
 }
 
-func startClient(conf *config, networkStatus *string, dataChan chan string, iterChan chan string) error {
-	clientConnection, tcpAddr := client.Start(conf.clientIp, conf.connectionType, networkStatus, dataChan, iterChan)
-	go client.ReconnectingService(&tcpAddr, conf.connectionType, &clientConnection, networkStatus)
-	client.DataWorker(networkStatus, &clientConnection, dataChan, iterChan)
+func startClient(conf *config, dataChan chan string) error {
+	networkStatus := "start"
+	clientConnection, tcpAddr := client.Start(conf.clientIp, conf.connectionType, &networkStatus)
+	go client.ReconnectingService(&tcpAddr, conf.connectionType, &clientConnection, &networkStatus)
+	client.DataWorker(&networkStatus, &clientConnection, dataChan)
 	//Сделать стоп и рестарт
 	return nil
 }
