@@ -1,2 +1,12 @@
 # rut955_openwrt
-lorem ipsum
+
+get gps data
+```shell
+cat /dev/ttyUSB2
+```
+or
+```shell
+gpsctl -h
+```
+
+можно заполнить поля IO, если нужно

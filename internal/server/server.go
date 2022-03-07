@@ -1,8 +1,12 @@
 package server
 
 import (
+	"fmt"
 	"log"
+	"math"
 	"net"
+	"os/exec"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -25,7 +29,7 @@ func sendToDataChan(dataChan chan string, deviceDataChan chan string) {
 	//data = ["","","","","","","","","","","",""]
 	//msg = ["#type#params","#type#params","#type#params"]
 	attr := []string{
-		getDate(), getTime(), getGps(), getSpeed(), getCourse(), getHeight(), getSats(), getHdop(), getInputs(),
+		getDateTime(), getLat(), getLon(), getSpeed(), getCourse(), getHeight(), getSats(), getHdop(), getInputs(),
 		getOutputs(), getAdc(), getIbutton(),
 	}
 	for _, params := range dataList {
@@ -39,7 +43,7 @@ func listToSrt(params []string, delim string) string {
 	if len(params) == 0 {
 		return ""
 	}
-	var msg string
+	msg := ""
 	for i := 0; i < len(params)-1; i++ {
 		msg = params[i] + delim
 	}
@@ -60,22 +64,6 @@ func getOutboundIP() string {
 	localAddr := conn.LocalAddr().(*net.UDPAddr)
 
 	return localAddr.IP.String()
-}
-
-func convertDeviceData(deviceDataChan chan string) []string {
-	dataList := getDeviceData(deviceDataChan)
-	//data = ["","","","","","","","","","","",""]
-	//msg = ["#type#params","#type#params","#type#params"]
-	attr := []string{
-		getDate(), getTime(), getGps(), getSpeed(), getCourse(), getHeight(), getSats(), getHdop(), getInputs(),
-		getOutputs(), getAdc(), getIbutton(),
-	}
-	var msg []string
-	for _, ms := range dataList {
-		msg = append(msg, "#D#"+strings.Join(attr, ";")+strings.Join(ms, ","))
-	}
-
-	return msg
 }
 
 func getDeviceData(deviceDataChan chan string) [][]string {
@@ -135,6 +123,14 @@ func handleRequest(connection net.Conn, deviceDataChan chan string) {
 	}
 }
 
+func getDateTime() string {
+	out, err := exec.Command("gpsctl -e").Output()
+	if err != nil {
+		time.Now().Format("2006-01-02 15:04:05")
+	}
+	return string(out[8:10]) + string(out[5:7]) + string(out[2:4]) + ";" + string(out[11:13]) + string(out[14:16]) + string(out[17:19])
+}
+
 func getIbutton() string {
 	return "NA"
 }
@@ -152,11 +148,22 @@ func getInputs() string {
 }
 
 func getHdop() string {
-	return "NA"
+	out, err := exec.Command("gpsctl -u").Output()
+	if (err != nil) || (len(out) == 0) {
+		return "NA;NA"
+	}
+	strOut := string(out)
+	fltOut, _ := strconv.ParseFloat(strOut, 64)
+	return fmt.Sprintf("%.3f", fltOut)
 }
 
 func getSats() string {
-	return "NA"
+	out, err := exec.Command("gpsctl -p").Output()
+	if (err != nil) || (len(out) == 0) {
+		return "NA;NA"
+	}
+	strOut := string(out)
+	return strOut
 }
 
 func getHeight() string {
@@ -164,21 +171,52 @@ func getHeight() string {
 }
 
 func getCourse() string {
-	return "NA"
+	out, err := exec.Command("gpsctl -g").Output()
+	if (err != nil) || (len(out) == 0) {
+		return "NA;NA"
+	}
+	strOut := string(out)
+	fltOut, _ := strconv.ParseFloat(strOut, 64)
+	intOut := int(math.Round(fltOut))
+	return fmt.Sprintf("%d", intOut)
 }
 
 func getSpeed() string {
-	return "NA"
+	out, err := exec.Command("gpsctl -v").Output()
+	if (err != nil) || (len(out) == 0) {
+		return "NA;NA"
+	}
+	strOut := string(out)
+	fltOut, _ := strconv.ParseFloat(strOut, 64)
+	intOut := int(math.Round(fltOut))
+	return fmt.Sprintf("%d", intOut)
 }
 
-func getGps() string {
-	return "NA"
+func getLat() string {
+	out, err := exec.Command("gpsctl -i").Output()
+	if (err != nil) || (len(out) == 0) {
+		return "NA;NA"
+	}
+	strOut := string(out)
+	log.Println(strOut)
+	fltOut, _ := strconv.ParseFloat(strOut, 64)
+	if fltOut > 0 {
+		return fmt.Sprintf("%f;N", fltOut*100)
+	}
+	return fmt.Sprintf("%f;S", fltOut*-100)
+
 }
 
-func getTime() string {
-	return "NA"
-}
-
-func getDate() string {
-	return "NA"
+func getLon() string {
+	out, err := exec.Command("gpsctl -x").Output()
+	if (err != nil) || (len(out) == 0) {
+		return "NA;NA"
+	}
+	strOut := string(out)
+	log.Println(strOut)
+	fltOut, _ := strconv.ParseFloat(strOut, 64)
+	if fltOut > 0 {
+		return fmt.Sprintf("0%f;E", fltOut*100)
+	}
+	return fmt.Sprintf("0%f;W", fltOut*-100)
 }
