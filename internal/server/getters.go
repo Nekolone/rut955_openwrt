@@ -111,6 +111,7 @@ func getLat() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA;NA"
 	}
+	log.Println(out)
 	strOut := strings.Replace(string(out), "\r\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	if fltOut == 0 {
@@ -128,9 +129,9 @@ func getLon() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA;NA"
 	}
+	log.Println(out)
 	strOut := strings.Replace(string(out), "\r\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
-	log.Println(fltOut)
 	if fltOut == 0 {
 		return "NA;NA"
 	}
