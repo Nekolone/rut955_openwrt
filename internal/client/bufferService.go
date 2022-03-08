@@ -14,6 +14,8 @@ func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, buffer
 	fileHanler, err := os.OpenFile("buffer.buf", os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		log.Println("cant read buffer file")
+		*networkStatus = "online"
+		log.Println("networkStatus -> online")
 		return
 	}
 
