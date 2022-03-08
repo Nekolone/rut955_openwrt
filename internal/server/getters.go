@@ -68,6 +68,7 @@ func getHdop() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
+	
 	strOut := strings.Replace(string(out), "\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.3f", fltOut)
@@ -78,6 +79,7 @@ func getSats() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
+
 	strOut := strings.Replace(string(out), "\n", "", -1)
 	return strOut
 }
@@ -91,6 +93,7 @@ func getCourse() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
+
 	strOut := strings.Replace(string(out), "\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.0f", fltOut)
@@ -101,6 +104,7 @@ func getSpeed() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
+
 	strOut := strings.Replace(string(out), "\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.0f", fltOut)
@@ -111,7 +115,7 @@ func getLat() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA;NA"
 	}
-	log.Println(out)
+
 	strOut := strings.Replace(string(out), "\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	if fltOut == 0 {
@@ -129,7 +133,6 @@ func getLon() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA;NA"
 	}
-	log.Println(out)
 	strOut := strings.Replace(string(out), "\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	if fltOut == 0 {
