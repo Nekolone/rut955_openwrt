@@ -37,7 +37,7 @@ func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, buffer
 				saveToBuffer(msg, newBufferPath)
 			}
 		default:
-			log.Println("buffer unexpected error, networkStatus is not postBuffering or buffering")
+			log.Printf("buffer unexpected error, networkStatus is not postBuffering or buffering > %s", *networkStatus)
 			return
 		}
 	}
