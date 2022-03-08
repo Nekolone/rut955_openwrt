@@ -9,7 +9,6 @@ or
 gpsctl -h
 ```
 
-можно заполнить поля IO, если нужно
 
 * cmd/main_app/main.go - начало, то с чего все запускается 
 * internal
