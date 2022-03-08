@@ -53,6 +53,7 @@ func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, buffer
 		log.Println("buffered data send successfully")
 		*networkStatus = "online"
 		log.Println("networkStatus -> online")
+		return
 	}
 	log.Println("still buffering")
 }
@@ -60,12 +61,12 @@ func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, buffer
 func saveToBuffer(data string, bufferPath string) {
 	fileHandler, err := os.OpenFile(bufferPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	if err != nil {
-		log.Printf("open error %v, try to create buffer.buf\n", err)
-		if fileHandler, err = os.Create("buffer.buf"); err != nil {
+		log.Printf("open error %v, try to create %s\n", err, bufferPath)
+		if fileHandler, err = os.Create(bufferPath); err != nil {
 			log.Println("create error", err)
 			os.Exit(1)
 		}
-		exec.Command("chmod +x buffer.buf")
+		exec.Command("chmod +x " + bufferPath)
 	}
 	defer fileHandler.Close()
 	fileHandler.WriteString(data + "\n")
