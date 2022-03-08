@@ -1,19 +1,26 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"log"
+	"os"
 	"rut955_openwrt/internal/client"
 	"rut955_openwrt/internal/server"
 	"sync"
 )
 
 type config struct {
-	connectionType string
-	clientIp       string
+	DeviceId         string `json:"device_id"`
+	DevicePass       string `json:"device_pass"`
+	ConnectionType   string `json:"connection_type"`
+	ClientIp         string `json:"client_ip"`
+	BufferPath       string `json:"buffer_path"`
+	ServerListenPort string `json:"server_listen_port"`
 }
 
 func main() {
-	configPath := "config_path"
+	configPath := "rut_config.json"
 	err := launch(configPath)
 	if err != nil {
 		log.Fatal("launch error")
@@ -30,11 +37,15 @@ func launch(path string) error {
 	wg.Add(2)
 
 	Config, err := getConfig(path)
-	if err == nil {
+	if err != nil {
 		log.Println("config path error, using default config")
 		Config = config{
-			connectionType: "tcp",
-			clientIp:       "192.168.57.161:12332",
+			DeviceId:         "00000000001",
+			DevicePass:       "passwd",
+			ConnectionType:   "tcp",
+			ClientIp:         "192.168.57.161:12332",
+			BufferPath:       "buffer.buf",
+			ServerListenPort: ":11111",
 		}
 	}
 
@@ -48,7 +59,7 @@ func launch(path string) error {
 	}(&wg)
 
 	go func(wgp *sync.WaitGroup) {
-		err := startServer(dataChan)
+		err := startServer(&Config, dataChan)
 		defer wgp.Done()
 		if err != nil {
 			log.Fatal("server routine error")
@@ -61,19 +72,30 @@ func launch(path string) error {
 }
 
 func getConfig(path string) (config, error) {
-	return config{}, nil
+	var cfg config
+	configFile, err := os.Open(path)
+	defer configFile.Close()
+	if err != nil {
+		return config{}, err
+		fmt.Println(err.Error())
+	}
+	jsonParser := json.NewDecoder(configFile)
+	jsonParser.Decode(&cfg)
+	return cfg, nil
 }
 
-func startServer(dataChan chan string) error {
-	server.Start(dataChan)
+func startServer(conf *config, dataChan chan string) error {
+	server.Start(conf.ServerListenPort, dataChan)
 	return nil
 }
 
 func startClient(conf *config, dataChan chan string) error {
 	networkStatus := "start"
-	clientConnection, tcpAddr := client.Start(conf.clientIp, conf.connectionType, &networkStatus)
-	go client.ReconnectingService(&tcpAddr, conf.connectionType, &clientConnection, &networkStatus)
-	client.DataWorker(&networkStatus, &clientConnection, dataChan)
+	clientConnection, tcpAddr := client.ConnectToServer(conf.ClientIp, conf.ConnectionType, &networkStatus,
+		conf.DeviceId, conf.DevicePass)
+	go client.ReconnectingService(&tcpAddr, conf.ConnectionType, &clientConnection, &networkStatus, conf.DeviceId,
+		conf.DevicePass)
+	client.DataWorker(&networkStatus, &clientConnection, dataChan, conf.BufferPath)
 	//Сделать стоп и рестарт
 	return nil
 }

@@ -1,0 +1,8 @@
+{
+  "device_id": "1234567890",
+  "device_pass":"passwd",
+  "connection_type": "tcp",
+  "client_ip":"192.168.57.161:12332",
+  "buffer_path": "buffer.buf",
+  "server_listen_port":":11111"
+}
