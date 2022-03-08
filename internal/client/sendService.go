@@ -90,7 +90,7 @@ func reactToResponse(response string) string {
 	case "#AD#1\r\n":
 		return "success"
 	case "#AD#10\r\n":
-		return "resend"
+		return "success"
 	case "#AD#11\r\n":
 		return "success"
 	case "#AD#12\r\n":
@@ -100,7 +100,7 @@ func reactToResponse(response string) string {
 	case "#AD#14\r\n":
 		return "success"
 	case "#AD#15\r\n":
-		return "resend"
+		return "success"
 	default:
 		return response
 	}

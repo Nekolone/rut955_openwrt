@@ -24,7 +24,6 @@ func login(clientConnection **net.TCPConn, id string, pass string) string {
 
 		go func() {
 			serverResponse, err := serverReader.ReadString('\n')
-			log.Println(serverResponse)
 			switch err {
 			case nil:
 				result <- serverResponse
