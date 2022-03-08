@@ -87,8 +87,9 @@ func getHeight() string {
 }
 
 func getCourse() string {
-	out, err := exec.Command("gpsctl -g").Output()
+	out, err := exec.Command("gpsctl", "-g").Output()
 	if (err != nil) || (len(out) == 0) {
+		log.Println(err)
 		return "NA"
 	}
 	strOut := string(out)
