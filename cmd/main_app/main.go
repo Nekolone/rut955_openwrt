@@ -43,7 +43,7 @@ func launch(path string) error {
 			DeviceId:         "00000000001",
 			DevicePass:       "passwd",
 			ConnectionType:   "tcp",
-			ClientIp:         "192.168.57.161:12332",
+			ClientIp:         "192.168.100.107:11113",
 			BufferPath:       "buffer.buf",
 			ServerListenPort: ":11111",
 		}
