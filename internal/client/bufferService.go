@@ -30,6 +30,7 @@ func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, buffer
 		switch *networkStatus {
 		case "postBuffering":
 			if send(msg, clientConnection, networkStatus) != "success" {
+				log.Println("save via postBuf")
 				saveToBuffer(msg, newBufferPath)
 			}
 		case "buffering":
@@ -72,7 +73,7 @@ func saveToBuffer(data string, bufferPath string) {
 	fileHandler.WriteString(data + "\n")
 }
 
-func deleteOldBuffer(bufferPath string, newBufferPath string) {
+func deleteOldBuffer(newBufferPath string, bufferPath string) {
 	err := os.Remove(bufferPath)
 	if err != nil {
 		log.Printf("remove buffer error> %v", err)
