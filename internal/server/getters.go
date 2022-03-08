@@ -40,7 +40,7 @@ func getDeviceData(deviceDataChan chan string) [][]string {
 }
 
 func getDateTime() string {
-	out, err := exec.Command("gpsctl -e").Output()
+	out, err := exec.Command("gpsctl", "-e").Output()
 	if err != nil {
 		out = []byte(time.Now().Format("2006-01-02 15:04:05"))
 	}
@@ -64,7 +64,7 @@ func getInputs() string {
 }
 
 func getHdop() string {
-	out, err := exec.Command("gpsctl -u").Output()
+	out, err := exec.Command("gpsctl", "-u").Output()
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
@@ -74,7 +74,7 @@ func getHdop() string {
 }
 
 func getSats() string {
-	out, err := exec.Command("gpsctl -p").Output()
+	out, err := exec.Command("gpsctl", "-p").Output()
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
@@ -89,7 +89,6 @@ func getHeight() string {
 func getCourse() string {
 	out, err := exec.Command("gpsctl", "-g").Output()
 	if (err != nil) || (len(out) == 0) {
-		log.Println(err)
 		return "NA"
 	}
 	strOut := string(out)
@@ -99,7 +98,7 @@ func getCourse() string {
 }
 
 func getSpeed() string {
-	out, err := exec.Command("gpsctl -v").Output()
+	out, err := exec.Command("gpsctl", "-v").Output()
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
@@ -110,7 +109,7 @@ func getSpeed() string {
 }
 
 func getLat() string {
-	out, err := exec.Command("gpsctl -i").Output()
+	out, err := exec.Command("gpsctl", "-i").Output()
 	if (err != nil) || (len(out) == 0) {
 		return "NA;NA"
 	}
@@ -125,7 +124,7 @@ func getLat() string {
 }
 
 func getLon() string {
-	out, err := exec.Command("gpsctl -x").Output()
+	out, err := exec.Command("gpsctl", "-x").Output()
 	if (err != nil) || (len(out) == 0) {
 		return "NA;NA"
 	}
