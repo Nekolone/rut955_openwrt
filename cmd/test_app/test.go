@@ -2,14 +2,35 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
 	"strconv"
+	"strings"
 )
 
 func main() {
-	exec.Command("mv main mainnnnnn")
+	log.Println(getLat())
+}
+
+func getLat() string {
+	out, err := exec.Command("cat", "file.txt").Output()
+	if (err != nil) || (len(out) == 0) {
+		return "NA;NA"
+	}
+
+	strOut := strings.Replace(string(out), "\r\n", "", -1)
+	fltOut, _ := strconv.ParseFloat(strOut, 64)
+
+	if fltOut == 0 {
+		return "NA;NA"
+	}
+	if fltOut > 0 {
+		return fmt.Sprintf("%.0f;N", fltOut*100)
+	}
+	return fmt.Sprintf("%.0f;S", fltOut*-100)
+
 }
 
 func readByLines(networkStatus *string) {

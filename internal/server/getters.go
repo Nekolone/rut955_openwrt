@@ -3,7 +3,6 @@ package server
 import (
 	"fmt"
 	"log"
-	"math"
 	"net"
 	"os/exec"
 	"strconv"
@@ -69,7 +68,7 @@ func getHdop() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
-	strOut := string(out)
+	strOut := strings.Replace(string(out), "\r\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.3f", fltOut)
 }
@@ -79,7 +78,7 @@ func getSats() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
-	strOut := strings.TrimSuffix(string(out), "\n")
+	strOut := strings.Replace(string(out), "\r\n", "", -1)
 	return strOut
 }
 
@@ -92,10 +91,9 @@ func getCourse() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
-	strOut := string(out)
+	strOut := strings.Replace(string(out), "\r\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
-	intOut := int(math.Round(fltOut))
-	return fmt.Sprintf("%d", intOut)
+	return fmt.Sprintf("%.0f", fltOut)
 }
 
 func getSpeed() string {
@@ -103,10 +101,9 @@ func getSpeed() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
-	strOut := string(out)
+	strOut := strings.Replace(string(out), "\r\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
-	intOut := int(math.Round(fltOut))
-	return fmt.Sprintf("%d", intOut)
+	return fmt.Sprintf("%.0f", fltOut)
 }
 
 func getLat() string {
@@ -114,14 +111,15 @@ func getLat() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA;NA"
 	}
-	strOut := string(out)
+	strOut := strings.Replace(string(out), "\r\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
-	log.Println(fltOut)
-
-	if fltOut > 0 {
-		return fmt.Sprintf("%f;N", fltOut*100)
+	if fltOut == 0 {
+		return "NA;NA"
 	}
-	return fmt.Sprintf("%f;S", fltOut*-100)
+	if fltOut > 0 {
+		return fmt.Sprintf("%.4f;N", fltOut*100)
+	}
+	return fmt.Sprintf("%.4f;S", fltOut*-100)
 
 }
 
@@ -130,11 +128,14 @@ func getLon() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA;NA"
 	}
-	strOut := string(out)
+	strOut := strings.Replace(string(out), "\r\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	log.Println(fltOut)
-	if fltOut > 0 {
-		return fmt.Sprintf("0%f;E", fltOut*100)
+	if fltOut == 0 {
+		return "NA;NA"
 	}
-	return fmt.Sprintf("0%f;W", fltOut*-100)
+	if fltOut > 0 {
+		return fmt.Sprintf("0%.4f;E", fltOut*100)
+	}
+	return fmt.Sprintf("0%.4f;W", fltOut*-100)
 }
