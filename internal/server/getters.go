@@ -7,6 +7,7 @@ import (
 	"net"
 	"os/exec"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -78,7 +79,7 @@ func getSats() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
-	strOut := string(out)
+	strOut := strings.TrimSuffix(string(out), "\n")
 	return strOut
 }
 
@@ -114,8 +115,9 @@ func getLat() string {
 		return "NA;NA"
 	}
 	strOut := string(out)
-	log.Println(strOut)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
+	log.Println(fltOut)
+
 	if fltOut > 0 {
 		return fmt.Sprintf("%f;N", fltOut*100)
 	}
@@ -129,8 +131,8 @@ func getLon() string {
 		return "NA;NA"
 	}
 	strOut := string(out)
-	log.Println(strOut)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
+	log.Println(fltOut)
 	if fltOut > 0 {
 		return fmt.Sprintf("0%f;E", fltOut*100)
 	}
