@@ -40,7 +40,7 @@ func main() {
 	readData[2] = 0x01
 
 	// make this read request transaction id 1, with a 300 millisecond tcp timeout
-	readResult, readErr := modbusclient.TCPRead(conn, 300, 1, modbusclient.FUNCTION_READ_HOLDING_REGISTERS, false, 0x00, readData, trace)
+	readResult, readErr := modbusclient.TCPRead(conn, 300, 12, modbusclient.FUNCTION_READ_HOLDING_REGISTERS, false, 0x00, readData, trace)
 	if readErr != nil {
 		log.Println(readErr)
 	}
@@ -50,9 +50,9 @@ func main() {
 	writeData := make([]byte, 3)
 	writeData[0] = byte(300 >> 8)   // (High Byte)
 	writeData[1] = byte(300 & 0xff) // (Low Byte)
-	writeData[2] = 0xff             // 0xff turns the coil on; 0x00 turns the coil off
+	writeData[2] = 0x00             // 0xff turns the coil on; 0x00 turns the coil off
 	// make this read request transaction id 2, with a 300 millisecond tcp timeout
-	writeResult, writeErr := modbusclient.TCPWrite(conn, 300, 2, modbusclient.FUNCTION_WRITE_SINGLE_COIL, false, 0x00, writeData, trace)
+	writeResult, writeErr := modbusclient.TCPWrite(conn, 300, 2, modbusclient.FUNCTION_WRITE_SINGLE_COIL, false, 0x0C, writeData, trace)
 	if writeErr != nil {
 		log.Println(writeErr)
 	}
