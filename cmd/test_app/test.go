@@ -18,7 +18,7 @@ func main() {
 		port int
 	)
 	const (
-		defaultHost = "172.16.1.13"
+		defaultHost = "172.16.1.12"
 		defaultPort = modbusclient.MODBUS_PORT
 	)
 
