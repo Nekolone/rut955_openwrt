@@ -40,7 +40,7 @@ func main() {
 	readData[2] = 0x01
 
 	// make this read request transaction id 1, with a 300 millisecond tcp timeout
-	readResult, readErr := modbusclient.TCPRead(conn, 300, 12, modbusclient.FUNCTION_READ_HOLDING_REGISTERS, false, 0x00, readData, trace)
+	readResult, readErr := modbusclient.TCPRead(conn, 300, 1, modbusclient.FUNCTION_READ_HOLDING_REGISTERS, false, 0x0C, readData, trace)
 	if readErr != nil {
 		log.Println(readErr)
 	}
