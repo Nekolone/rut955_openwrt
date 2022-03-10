@@ -12,9 +12,7 @@ import (
 func main() {
 	// Modbus TCP
 	res := getModbusData()
-	log.Println(res)
-	log.Println(len(res))
-	log.Println(Float64frombytes(res[0:4]))
+	log.Println(res[0:4])
 	for i := 4; i <= len(res)-4; i += 4 {
 		log.Println(i)
 		resul := Float64frombytes(res[i-4 : i])
@@ -23,7 +21,7 @@ func main() {
 }
 
 func Float64frombytes(bytes []byte) float64 {
-	bits := binary.LittleEndian.Uint64(bytes)
+	bits := binary.BigEndian.Uint64(bytes)
 	float := math.Float64frombits(bits)
 	return float
 }
