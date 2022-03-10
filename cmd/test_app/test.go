@@ -40,6 +40,6 @@ func getModbusData() []byte {
 	defer handler.Close()
 
 	client := modbus.NewClient(handler)
-	results, err := client.ReadHoldingRegisters(1, 20)
+	results, err := client.ReadHoldingRegisters(0, 20)
 	return results
 }
