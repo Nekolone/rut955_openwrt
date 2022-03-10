@@ -14,12 +14,15 @@ func main() {
 	res := getModbusData()
 	log.Println(res)
 	log.Println(res[0:8])
-	log.Println([]byte{res[2], res[3], res[0], res[1]})
-	for i := 3; i <= len(res)-4; i += 4 {
-		log.Println(i)
-		resul := Float32frombytes([]byte{res[i-1], res[i], res[i-3], res[i-2]})
-		log.Println(resul)
+	log.Println(getFloat32bytes3412(res, 3, 4, 1, 2))
+}
+
+func getFloat32bytes3412(bytes []byte, p1 int, p2 int, p3 int, p4 int) []float32 {
+	var resul []float32
+	for i := 3; i <= len(bytes)-4; i += 4 {
+		resul = append(resul, Float32frombytes([]byte{bytes[i-(4-p1)], bytes[i-(4-p2)], bytes[i-(4-p3)], bytes[i-(4-p4)]}))
 	}
+	return resul
 }
 
 func Float32frombytes(bytes []byte) float32 {
