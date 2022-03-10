@@ -12,7 +12,8 @@ import (
 func main() {
 	// Modbus TCP
 	res := getModbusData()
-	log.Println(res[0:4])
+	log.Println(res)
+	log.Println(res[0:8])
 	for i := 8; i <= len(res)-8; i += 8 {
 		log.Println(i)
 		resul := Float64frombytes(res[i-8 : i])
