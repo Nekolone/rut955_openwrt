@@ -15,7 +15,8 @@ func main() {
 	res := getModbusData()
 	log.Println(res)
 	log.Println(res[0:8])
-	log.Println(getSigInt8(res))
+	log.Println(getFloat64(res, 1, 2, 3, 4, 5, 6, 7, 8))
+	log.Println(getFloat64(res, 7, 8, 5, 6, 3, 4, 1, 2))
 }
 
 func getSigInt8(bytes []byte) []int8 {
@@ -70,6 +71,15 @@ func getFloat32(bytes []byte, p1 int, p2 int, p3 int, p4 int) []float32 {
 	return resul
 }
 
+func getFloat64(bytes []byte, p1 int, p2 int, p3 int, p4 int, p5 int, p6 int, p7 int, p8 int) []float64 {
+	var resul []float64
+	for i := 3; i <= len(bytes)-4; i += 4 {
+		resul = append(resul, byteToFloat64([]byte{bytes[i-(8-p1)], bytes[i-(8-p2)], bytes[i-(8-p3)], bytes[i-(8-p4)],
+			bytes[i-(8-p5)], bytes[i-(8-p6)], bytes[i-(8-p7)], bytes[i-(8-p8)]}))
+	}
+	return resul
+}
+
 func getAscii(bytes []byte) string {
 	return byteToAscii(bytes)
 }
@@ -107,6 +117,10 @@ func byteToUint32(bytes []byte) uint32 {
 
 func byteToFloat32(bytes []byte) float32 {
 	return math.Float32frombits(binary.BigEndian.Uint32(bytes))
+}
+
+func byteToFloat64(bytes []byte) float64 {
+	return math.Float64frombits(binary.BigEndian.Uint64(bytes))
 }
 
 func getModbusData() []byte {
