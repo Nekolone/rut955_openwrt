@@ -14,16 +14,17 @@ func main() {
 	res := getModbusData()
 	log.Println(res)
 	log.Println(res[0:8])
-	for i := 8; i <= len(res)-8; i += 8 {
+	log.Println([]byte{res[3], res[4], res[1], res[2]})
+	for i := 4; i <= len(res)-4; i += 4 {
 		log.Println(i)
-		resul := Float64frombytes(res[i-8 : i])
+		resul := Float32frombytes([]byte{res[i-1], res[i], res[i-3], res[i-2]})
 		log.Println(resul)
 	}
 }
 
-func Float64frombytes(bytes []byte) float64 {
-	bits := binary.BigEndian.Uint64(bytes)
-	float := math.Float64frombits(bits)
+func Float32frombytes(bytes []byte) float32 {
+	bits := binary.BigEndian.Uint32(bytes)
+	float := math.Float32frombits(bits)
 	return float
 }
 
