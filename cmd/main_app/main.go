@@ -1,12 +1,12 @@
 package main
 
 import (
+	"../../internal/client"
+	"../../internal/server"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
-	"rut955_openwrt/internal/client"
-	"rut955_openwrt/internal/server"
 	"sync"
 )
 
@@ -91,6 +91,7 @@ func startServer(conf *config, dataChan chan string) error {
 
 func startClient(conf *config, dataChan chan string) error {
 	networkStatus := "start"
+
 	clientConnection, tcpAddr := client.ConnectToServer(conf.ClientIp, conf.ConnectionType, &networkStatus,
 		conf.DeviceId, conf.DevicePass)
 	go client.ReconnectingService(&tcpAddr, conf.ConnectionType, &clientConnection, &networkStatus, conf.DeviceId,
