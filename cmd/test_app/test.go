@@ -14,7 +14,20 @@ func main() {
 	res := getModbusData()
 	log.Println(res)
 	log.Println(res[0:8])
-	log.Println(getFloat32bytes3412(res, 3, 4, 1, 2))
+	log.Println(getSigInt8b(res))
+}
+
+func getUnsInt8b(bytes []byte) []uint8 {
+	return bytes
+}
+
+func getSigInt8b(bytes []byte) []int8 {
+	var resul []int8
+	for _, d := range bytes {
+		resul = append(resul, int8(d))
+	}
+	return resul
+
 }
 
 func getFloat32bytes3412(bytes []byte, p1 int, p2 int, p3 int, p4 int) []float32 {
