@@ -15,7 +15,7 @@ func main() {
 	log.Println(res)
 	log.Println(res[0:8])
 	log.Println([]byte{res[3], res[4], res[1], res[2]})
-	for i := 4; i <= len(res)-4; i += 4 {
+	for i := 3; i <= len(res)-4; i += 4 {
 		log.Println(i)
 		resul := Float32frombytes([]byte{res[i-1], res[i], res[i-3], res[i-2]})
 		log.Println(resul)
