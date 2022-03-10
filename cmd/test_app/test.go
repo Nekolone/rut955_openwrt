@@ -13,12 +13,13 @@ func main() {
 	// Modbus TCP
 	res := getModbusData()
 	log.Println(res)
-	log.Println(string(res))
 	log.Println(len(res))
-	//for i := 2; i < len(res)-2; i += 2 {
-	//	resul := Float64frombytes(res[i-2 : i])
-	//	log.Println(resul)
-	//}
+	log.Println(Float64frombytes(res[0:4]))
+	for i := 4; i <= len(res)-4; i += 4 {
+		log.Println(i)
+		resul := Float64frombytes(res[i-4 : i])
+		log.Println(resul)
+	}
 }
 
 func Float64frombytes(bytes []byte) float64 {
