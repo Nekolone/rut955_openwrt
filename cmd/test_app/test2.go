@@ -3,18 +3,25 @@ package main
 import (
 	"github.com/goburrow/modbus"
 	"log"
+	"os"
+	"time"
 )
 
 func main() {
 	// Modbus TCP
-	client := modbus.TCPClient("172.16.1.12:502")
-	// Read input register 9
-	results, err := client.ReadHoldingRegisters(12, 20)
-
+	handler := modbus.NewTCPClientHandler("172.16.1.12:502")
+	handler.Timeout = 10 * time.Second
+	handler.SlaveId = 0x0C
+	handler.Logger = log.New(os.Stdout, "test: ", log.LstdFlags)
+	// Connect manually so that multiple requests are handled in one connection session
+	err := handler.Connect()
 	if err != nil {
 		log.Println(err)
 	}
+	defer handler.Close()
 
+	client := modbus.NewClient(handler)
+	results, err := client.ReadHoldingRegisters(0, 20)
 	log.Println(results)
 
 }
