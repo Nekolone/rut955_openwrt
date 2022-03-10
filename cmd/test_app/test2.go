@@ -21,7 +21,7 @@ func main() {
 	defer handler.Close()
 
 	client := modbus.NewClient(handler)
-	results, err := client.ReadHoldingRegisters(0, 20)
+	results, err := client.ReadHoldingRegisters(1, 10)
 	log.Println(results)
 
 }
