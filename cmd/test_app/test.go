@@ -24,6 +24,7 @@ func getUnsInt8b(bytes []byte) []uint8 {
 func getSigInt8b(bytes []byte) []int8 {
 	var resul []int8
 	for _, d := range bytes {
+		log.Println(int8(d))
 		resul = append(resul, int8(d))
 	}
 	return resul
