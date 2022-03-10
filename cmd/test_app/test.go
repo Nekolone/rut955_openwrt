@@ -20,9 +20,9 @@ func main() {
 	}
 }
 
-func Float64frombytes(bytes []byte) float64 {
-	bits := binary.BigEndian.Uint64(bytes)
-	float := math.Float64frombits(bits)
+func Float64frombytes(bytes []byte) float32 {
+	bits := binary.BigEndian.Uint32(bytes)
+	float := math.Float32frombits(bits)
 	return float
 }
 
