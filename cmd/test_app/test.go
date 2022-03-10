@@ -18,8 +18,8 @@ func main() {
 	log.Println(res[0:7])
 	log.Println(res[0:11])
 	log.Println(res[0:15])
-	for i := 0; i <= len(res)-4; i += 4 {
-		resul := Float64frombytes(res[i : i+4])
+	for i := 2; i < len(res)-2; i += 2 {
+		resul := Float64frombytes(res[i-2 : i])
 		log.Println(resul)
 	}
 }
@@ -43,6 +43,6 @@ func getModbusData() []byte {
 	defer handler.Close()
 
 	client := modbus.NewClient(handler)
-	results, err := client.ReadHoldingRegisters(1, 10)
+	results, err := client.ReadHoldingRegisters(1, 20)
 	return results
 }
