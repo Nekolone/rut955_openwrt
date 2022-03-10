@@ -73,7 +73,7 @@ func getFloat32(bytes []byte, p1 int, p2 int, p3 int, p4 int) []float32 {
 
 func getFloat64(bytes []byte, p1 int, p2 int, p3 int, p4 int, p5 int, p6 int, p7 int, p8 int) []float64 {
 	var resul []float64
-	for i := 3; i <= len(bytes)-4; i += 4 {
+	for i := 7; i <= len(bytes)-8; i += 8 {
 		resul = append(resul, byteToFloat64([]byte{bytes[i-(8-p1)], bytes[i-(8-p2)], bytes[i-(8-p3)], bytes[i-(8-p4)],
 			bytes[i-(8-p5)], bytes[i-(8-p6)], bytes[i-(8-p7)], bytes[i-(8-p8)]}))
 	}
