@@ -32,46 +32,10 @@ func main() {
 	readData := make([]byte, 3)
 	readData[0] = byte(200 >> 8)   // (High Byte)
 	readData[1] = byte(200 & 0xff) // (Low Byte)
-	readData[2] = 0x0B
+	readData[2] = 12
 
 	// make this read request transaction id 1, with a 300 millisecond tcp timeout
-	readResult, readErr := modbusclient.TCPRead(conn, 300, 1, modbusclient.FUNCTION_READ_HOLDING_REGISTERS, false, 0x0B, readData, trace)
-	if readErr != nil {
-		log.Println(readErr)
-	}
-	log.Println(readResult)
-
-	// attempt to read one (0x01) holding registers starting at address 200
-	readData[0] = byte(200 >> 8)   // (High Byte)
-	readData[1] = byte(200 & 0xff) // (Low Byte)
-	readData[2] = 0x0C
-
-	// make this read request transaction id 1, with a 300 millisecond tcp timeout
-	readResult, readErr = modbusclient.TCPRead(conn, 300, 1, modbusclient.FUNCTION_READ_HOLDING_REGISTERS, false, 0x0C, readData, trace)
-	if readErr != nil {
-		log.Println(readErr)
-	}
-	log.Println(readResult)
-
-	// attempt to read one (0x01) holding registers starting at address 200
-	readData[0] = byte(200 >> 8)   // (High Byte)
-	readData[1] = byte(200 & 0xff) // (Low Byte)
-	readData[2] = 0x0D
-
-	// make this read request transaction id 1, with a 300 millisecond tcp timeout
-	readResult, readErr = modbusclient.TCPRead(conn, 300, 1, modbusclient.FUNCTION_READ_HOLDING_REGISTERS, false, 0x0D, readData, trace)
-	if readErr != nil {
-		log.Println(readErr)
-	}
-	log.Println(readResult)
-
-	// attempt to read one (0x01) holding registers starting at address 200
-	readData[0] = byte(200 >> 8)   // (High Byte)
-	readData[1] = byte(200 & 0xff) // (Low Byte)
-	readData[2] = 0x0E
-
-	// make this read request transaction id 1, with a 300 millisecond tcp timeout
-	readResult, readErr = modbusclient.TCPRead(conn, 300, 1, modbusclient.FUNCTION_READ_HOLDING_REGISTERS, false, 0x0E, readData, trace)
+	readResult, readErr := modbusclient.TCPRead(conn, 3000, 1, modbusclient.FUNCTION_READ_HOLDING_REGISTERS, false, 0x0C, readData, trace)
 	if readErr != nil {
 		log.Println(readErr)
 	}
@@ -84,4 +48,3 @@ func main() {
 func connectModbus() {
 
 }
-
