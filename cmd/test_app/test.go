@@ -14,6 +14,10 @@ func main() {
 	res := getModbusData()
 	log.Println(res)
 	log.Println(string(res))
+	log.Println(res[0:3])
+	log.Println(res[0:7])
+	log.Println(res[0:11])
+	log.Println(res[0:15])
 	for i := 0; i <= len(res)-4; i += 4 {
 		resul := Float64frombytes(res[i : i+4])
 		log.Println(resul)
