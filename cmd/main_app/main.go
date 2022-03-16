@@ -1,12 +1,12 @@
 package main
 
 import (
-	"../../internal/client"
-	"../../internal/server"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
+	"rut955_openwrt/internal/client"
+	"rut955_openwrt/internal/server"
 	"sync"
 )
 

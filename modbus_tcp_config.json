@@ -1,0 +1,22 @@
+{
+  "deviceName1": {
+    "deviceIp": "123.45.67.89:502",
+    "timeout": 10,
+    "slaves": {
+      "request_1": {
+        "slaveId": 1,
+        "function": 3,
+        "startAddress": 0,
+        "quantity": 20,
+        "registerMap": "map1"
+      },
+      "request_2": {
+        "slaveId": 2,
+        "function": 3,
+        "startAddress": 0,
+        "quantity": 20,
+        "registerMap": "map2"
+      }
+    }
+  }
+}
