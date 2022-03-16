@@ -76,8 +76,8 @@ func getConfig(path string) (config, error) {
 	configFile, err := os.Open(path)
 	defer configFile.Close()
 	if err != nil {
-		return config{}, err
 		fmt.Println(err.Error())
+		return config{}, err
 	}
 	jsonParser := json.NewDecoder(configFile)
 	jsonParser.Decode(&cfg)
