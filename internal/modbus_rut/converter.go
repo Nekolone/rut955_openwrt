@@ -63,7 +63,7 @@ func convertByteByMap(p param, array []byte) DataFromBytes {
 		//return DataFromBytes{2, fmt.Sprintf("%0.4f",GetFloat32(array,unpack4())))}
 		return DataFromBytes{2, fmt.Sprintf("%v", GetFloat64(array,
 			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3], p.ByteOrder[4],
-			p.ByteOrder[5], p.ByteOrder[6], p.ByteOrder[7]))}
+			p.ByteOrder[5], p.ByteOrder[6], p.ByteOrder[7])[0])}
 
 	case "ASCII":
 		return DataFromBytes{3, GetAscii(array)}
