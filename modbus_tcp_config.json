@@ -1,105 +1,26 @@
 [
   {
     "name": "device_ONE",
-    "deviceIp": "123.45.67.89:502",
+    "deviceIp": "172.16.1.12:502",
     "timeout": 10,
     "requests": [
       {
-        "slaveId": 1,
+        "slaveId": 12,
         "function": 3,
         "startAddress": 0,
         "quantity": 20,
         "params": [
           {
             "paramId": "5182ADS",
-            "byteSize": 2,
-            "dataType": "float32"
+            "byteSize": 4,
+            "dataType": "float64",
+            "byteOrder": [1, 2, 3, 4, 5, 6, 7, 8]
           },
-          {
-            "paramId": "4572WPS",
-            "byteSize": 1,
-            "dataType": "ASCII"
-          },
-          {
-            "paramId": "4572WPS",
-            "byteSize": 142,
-            "dataType": "string"
-          }
-        ]
-      },
-      {
-        "slaveId": 2,
-        "function": 3,
-        "startAddress": 0,
-        "quantity": 20,
-        "params": [
           {
             "paramId": "5182ADS",
-            "byteSize": 2,
-            "dataType": "float32"
-          },
-          {
-            "paramId": "4572WPS",
-            "byteSize": 1,
-            "dataType": "ASCII"
-          },
-          {
-            "paramId": "4572WPS",
-            "byteSize": 142,
-            "dataType": "string"
-          }
-        ]
-      }
-    ]
-  },
-  {
-    "name": "device_TWO",
-    "deviceIp": "123.45.67.89:502",
-    "timeout": 10,
-    "requests": [
-      {
-        "slaveId": 1,
-        "function": 3,
-        "startAddress": 0,
-        "quantity": 20,
-        "params": [
-          {
-            "paramId": "5182ADS",
-            "byteSize": 2,
-            "dataType": "float32"
-          },
-          {
-            "paramId": "4572WPS",
-            "byteSize": 1,
-            "dataType": "ASCII"
-          },
-          {
-            "paramId": "4572WPS",
-            "byteSize": 142,
-            "dataType": "string"
-          }
-        ]
-      },
-      {
-        "slaveId": 2,
-        "function": 3,
-        "startAddress": 0,
-        "quantity": 20,
-        "params": [
-          {
-            "paramId": "5182ADS",
-            "byteSize": 2,
-            "dataType": "float32"
-          },
-          {
-            "paramId": "4572WPS",
-            "byteSize": 1,
-            "dataType": "ASCII"
-          },
-          {
-            "paramId": "4572WPS",
-            "byteSize": 142,
-            "dataType": "string"
+            "byteSize": 4,
+            "dataType": "float64",
+            "byteOrder": [7, 8, 5, 6, 3, 4, 1, 2]
           }
         ]
       }

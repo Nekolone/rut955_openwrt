@@ -34,6 +34,7 @@ type param struct {
 	ParamId  string `json:"paramId"`
 	ByteSize uint16 `json:"byteSize"`
 	DataType string `json:"dataType"`
+	ByteOrder []int `json:"byteOrder"`
 }
 
 func Test() {
@@ -56,6 +57,7 @@ func Test() {
 				log.Println("paramId", p.ParamId)
 				log.Println("byteSize", p.ByteSize)
 				log.Println("dataType", p.DataType)
+				log.Println("byteOrder", p.ByteOrder)
 			}
 		}
 	}

@@ -3,12 +3,77 @@ package modbus_rut
 import (
 	"encoding/binary"
 	"encoding/hex"
+	"fmt"
+	"log"
 	"math"
 )
 
+type DataFromBytes struct {
+	dataType  int
+	dataValue string
+}
 
-func modbusConvertService(results []byte, registerMap []param) string {
-	return "213"
+func modbusConvertService(byteArray []byte, registerMap []param) (result string) {
+	var str string
+	for _, p := range registerMap {
+		str, byteArray = getData(p, byteArray)
+		addToResult(&result, str)
+	}
+	return
+}
+
+func addToResult(s *string, data string) {
+	*s = fmt.Sprintf("%s,%s", *s, data)
+}
+
+func getData(p param, array []byte) (string, []byte) {
+	if uint16(len(array)) < p.ByteSize {
+		log.Printf("out of byte array. Array>%b", array)
+		return "", array
+	}
+	res := convertByteByMap(p, array[:p.ByteSize])
+	return fmt.Sprintf("%s:%d:%s", p.ParamId, res.dataType, res.dataValue), array[p.ByteSize:]
+}
+
+func unpack4() (int, int, int, int) {
+	return 1, 2, 3, 4
+}
+
+func convertByteByMap(p param, array []byte) DataFromBytes {
+	switch p.DataType {
+	case "int8":
+		return DataFromBytes{1, fmt.Sprintf("%d", GetSigInt8(array))}
+	case "uint8":
+		return DataFromBytes{1, fmt.Sprintf("%d", GetUnsInt8(array))}
+	case "int16":
+		return DataFromBytes{1, fmt.Sprintf("%d", GetSigInt16(array,
+			p.ByteOrder[0], p.ByteOrder[1]))}
+	case "uint16":
+		return DataFromBytes{1, fmt.Sprintf("%d", GetUnsInt16(array,
+			p.ByteOrder[0], p.ByteOrder[1]))}
+	case "int32":
+		return DataFromBytes{1, fmt.Sprintf("%d", GetSigInt32(array,
+			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3]))}
+	case "uint32":
+		return DataFromBytes{1, fmt.Sprintf("%d", GetUnsInt32(array,
+			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3]))}
+	case "float32":
+		//return DataFromBytes{2, fmt.Sprintf("%0.4f",GetFloat32(array,unpack4())))}
+		return DataFromBytes{2, fmt.Sprintf("%.4f", GetFloat32(array,
+			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3]))}
+	case "float64":
+		//return DataFromBytes{2, fmt.Sprintf("%0.4f",GetFloat32(array,unpack4())))}
+		return DataFromBytes{2, fmt.Sprintf("%.4f", GetFloat64(array,
+			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3], p.ByteOrder[4],
+			p.ByteOrder[5], p.ByteOrder[6], p.ByteOrder[7]))}
+
+	case "ASCII":
+		return DataFromBytes{3, GetAscii(array)}
+
+	default:
+		log.Printf("dataType error>%s", p.DataType)
+		return DataFromBytes{3, " "}
+	}
 }
 
 func byteToHex(bytes []byte) string {
