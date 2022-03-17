@@ -16,7 +16,9 @@ type DataFromBytes struct {
 func modbusConvertService(byteArray []byte, registerMap []param) (result string) {
 	var str string
 	for _, p := range registerMap {
+		log.Println("beforeGTDTA",p, byteArray)
 		str, byteArray = getData(p, byteArray)
+		log.Println("afterGTDTA",str, byteArray)
 		addToResult(&result, str)
 	}
 	return
@@ -31,15 +33,16 @@ func getData(p param, array []byte) (string, []byte) {
 		log.Printf("out of byte array. Array>%b", array)
 		return "", array
 	}
+
+	log.Println("beforeConvert",p,array )
 	res := convertByteByMap(p, array[:p.ByteSize])
+	log.Println("afterConvert",p,array )
 	return fmt.Sprintf("%s:%d:%s", p.ParamId, res.dataType, res.dataValue), array[p.ByteSize:]
 }
 
-func unpack4() (int, int, int, int) {
-	return 1, 2, 3, 4
-}
 
 func convertByteByMap(p param, array []byte) DataFromBytes {
+	log.Println("bytes inside converter", array)
 	switch p.DataType {
 	case "int8":
 		return DataFromBytes{1, fmt.Sprintf("%d", GetSigInt8(array))}
