@@ -16,9 +16,7 @@ type DataFromBytes struct {
 func modbusConvertService(byteArray []byte, registerMap []param) (result string) {
 	var str string
 	for _, p := range registerMap {
-		log.Println("beforeGTDTA",p, byteArray)
 		str, byteArray = getData(p, byteArray)
-		log.Println("afterGTDTA",str, byteArray)
 		addToResult(&result, str)
 	}
 	return
@@ -33,8 +31,6 @@ func getData(p param, array []byte) (string, []byte) {
 		log.Printf("out of byte array. Array>%b", array)
 		return "", array
 	}
-
-	log.Println("beforeConvert",p,array )
 	res := convertByteByMap(p, array[:p.ByteSize])
 	log.Println("afterConvert",p,array , res)
 	return fmt.Sprintf("%s:%d:%s", p.ParamId, res.dataType, res.dataValue), array[p.ByteSize:]
@@ -42,31 +38,30 @@ func getData(p param, array []byte) (string, []byte) {
 
 
 func convertByteByMap(p param, array []byte) DataFromBytes {
-	log.Println("bytes inside converter", array)
 	switch p.DataType {
 	case "int8":
-		return DataFromBytes{1, fmt.Sprintf("%d", GetSigInt8(array))}
+		return DataFromBytes{1, fmt.Sprintf("%v", GetSigInt8(array))}
 	case "uint8":
-		return DataFromBytes{1, fmt.Sprintf("%d", GetUnsInt8(array))}
+		return DataFromBytes{1, fmt.Sprintf("%v", GetUnsInt8(array))}
 	case "int16":
-		return DataFromBytes{1, fmt.Sprintf("%d", GetSigInt16(array,
+		return DataFromBytes{1, fmt.Sprintf("%v", GetSigInt16(array,
 			p.ByteOrder[0], p.ByteOrder[1]))}
 	case "uint16":
-		return DataFromBytes{1, fmt.Sprintf("%d", GetUnsInt16(array,
+		return DataFromBytes{1, fmt.Sprintf("%v", GetUnsInt16(array,
 			p.ByteOrder[0], p.ByteOrder[1]))}
 	case "int32":
-		return DataFromBytes{1, fmt.Sprintf("%d", GetSigInt32(array,
+		return DataFromBytes{1, fmt.Sprintf("%v", GetSigInt32(array,
 			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3]))}
 	case "uint32":
-		return DataFromBytes{1, fmt.Sprintf("%d", GetUnsInt32(array,
+		return DataFromBytes{1, fmt.Sprintf("%v", GetUnsInt32(array,
 			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3]))}
 	case "float32":
 		//return DataFromBytes{2, fmt.Sprintf("%0.4f",GetFloat32(array,unpack4())))}
-		return DataFromBytes{2, fmt.Sprintf("%.4f", GetFloat32(array,
+		return DataFromBytes{2, fmt.Sprintf("%v", GetFloat32(array,
 			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3]))}
 	case "float64":
 		//return DataFromBytes{2, fmt.Sprintf("%0.4f",GetFloat32(array,unpack4())))}
-		return DataFromBytes{2, fmt.Sprintf("%.4f", GetFloat64(array,
+		return DataFromBytes{2, fmt.Sprintf("%v", GetFloat64(array,
 			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3], p.ByteOrder[4],
 			p.ByteOrder[5], p.ByteOrder[6], p.ByteOrder[7]))}
 
