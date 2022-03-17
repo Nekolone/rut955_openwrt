@@ -107,7 +107,7 @@ func RequestsService(requests []Request, deviceDataChan chan string, handler *mo
 	defer handler.Close()
 	var client modbus.Client
 	var results []byte
-	recTimer := time.NewTicker(time.Second*15)
+	recTimer := time.NewTicker(time.Second*10)
 	for range recTimer.C {
 		for _, request := range requests {
 			handler.SlaveId = request.SlaveId
