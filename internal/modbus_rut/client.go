@@ -94,7 +94,8 @@ func deviceWorker(device ModbusDevice, deviceDataChan chan string) {
 	handler := modbus.NewTCPClientHandler(device.DeviceIp)
 	log.Println("here?")
 	handler.Timeout = time.Duration(device.Timeout) * time.Second
-	for {
+	recTimer := time.NewTicker(time.Second*15)
+	for range recTimer.C{
 		err := handler.Connect()
 		if err != nil {
 			log.Println(err)
@@ -138,7 +139,7 @@ func RequestsService(requests []Request, deviceDataChan chan string, handler *mo
 			default:
 				continue
 			}
-			//log.Println(results)
+			log.Println(request.RegisterMap)
 			ready := modbusConvertService(results, request.RegisterMap)
 			log.Println(ready)
 
