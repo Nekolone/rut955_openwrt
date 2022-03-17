@@ -56,8 +56,8 @@ func GetFloat32(bytes []byte, p1 int, p2 int, p3 int, p4 int) []float32 {
 
 func GetFloat64(bytes []byte, p1 int, p2 int, p3 int, p4 int, p5 int, p6 int, p7 int, p8 int) float64 {
 	var resul float64
-	resul = byteToFloat64([]byte{bytes[(7 - p1)], bytes[(7 - p2)], bytes[(7 - p3)], bytes[(7 - p4)],
-		bytes[(7 - p5)], bytes[(7 - p6)], bytes[(7 - p7)], bytes[(7 - p8)]})
+	resul = byteToFloat64([]byte{bytes[(8 - p1)], bytes[(8 - p2)], bytes[(8 - p3)], bytes[(8 - p4)],
+		bytes[(8 - p5)], bytes[(8 - p6)], bytes[(8 - p7)], bytes[(8 - p8)]})
 
 	log.Println(resul)
 	return resul
