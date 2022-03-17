@@ -36,7 +36,7 @@ func getData(p param, array []byte) (string, []byte) {
 
 	log.Println("beforeConvert",p,array )
 	res := convertByteByMap(p, array[:p.ByteSize])
-	log.Println("afterConvert",p,array )
+	log.Println("afterConvert",p,array , res)
 	return fmt.Sprintf("%s:%d:%s", p.ParamId, res.dataType, res.dataValue), array[p.ByteSize:]
 }
 
