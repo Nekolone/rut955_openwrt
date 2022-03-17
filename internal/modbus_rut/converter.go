@@ -6,6 +6,11 @@ import (
 	"math"
 )
 
+
+func modbusConvertService(results []byte, registerMap []param) string {
+	return "213"
+}
+
 func byteToHex(bytes []byte) string {
 	return hex.EncodeToString(bytes)
 }
@@ -35,8 +40,4 @@ func byteToFloat32(bytes []byte) float32 {
 
 func byteToFloat64(bytes []byte) float64 {
 	return math.Float64frombits(binary.BigEndian.Uint64(bytes))
-}
-
-func modbusConvertService(results []byte, registerMap RegMap) []string {
-	return []string{"1", "2"}
 }

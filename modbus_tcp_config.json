@@ -1,22 +1,108 @@
-{
-  "deviceName1": {
+[
+  {
+    "name": "device_ONE",
     "deviceIp": "123.45.67.89:502",
     "timeout": 10,
-    "slaves": {
-      "request_1": {
+    "requests": [
+      {
         "slaveId": 1,
         "function": 3,
         "startAddress": 0,
         "quantity": 20,
-        "registerMap": "map1"
+        "params": [
+          {
+            "paramId": "5182ADS",
+            "byteSize": 2,
+            "dataType": "float32"
+          },
+          {
+            "paramId": "4572WPS",
+            "byteSize": 1,
+            "dataType": "ASCII"
+          },
+          {
+            "paramId": "4572WPS",
+            "byteSize": 142,
+            "dataType": "string"
+          }
+        ]
       },
-      "request_2": {
+      {
         "slaveId": 2,
         "function": 3,
         "startAddress": 0,
         "quantity": 20,
-        "registerMap": "map2"
+        "params": [
+          {
+            "paramId": "5182ADS",
+            "byteSize": 2,
+            "dataType": "float32"
+          },
+          {
+            "paramId": "4572WPS",
+            "byteSize": 1,
+            "dataType": "ASCII"
+          },
+          {
+            "paramId": "4572WPS",
+            "byteSize": 142,
+            "dataType": "string"
+          }
+        ]
       }
-    }
+    ]
+  },
+  {
+    "name": "device_TWO",
+    "deviceIp": "123.45.67.89:502",
+    "timeout": 10,
+    "requests": [
+      {
+        "slaveId": 1,
+        "function": 3,
+        "startAddress": 0,
+        "quantity": 20,
+        "params": [
+          {
+            "paramId": "5182ADS",
+            "byteSize": 2,
+            "dataType": "float32"
+          },
+          {
+            "paramId": "4572WPS",
+            "byteSize": 1,
+            "dataType": "ASCII"
+          },
+          {
+            "paramId": "4572WPS",
+            "byteSize": 142,
+            "dataType": "string"
+          }
+        ]
+      },
+      {
+        "slaveId": 2,
+        "function": 3,
+        "startAddress": 0,
+        "quantity": 20,
+        "params": [
+          {
+            "paramId": "5182ADS",
+            "byteSize": 2,
+            "dataType": "float32"
+          },
+          {
+            "paramId": "4572WPS",
+            "byteSize": 1,
+            "dataType": "ASCII"
+          },
+          {
+            "paramId": "4572WPS",
+            "byteSize": 142,
+            "dataType": "string"
+          }
+        ]
+      }
+    ]
   }
-}
+]

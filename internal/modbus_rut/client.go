@@ -1,77 +1,151 @@
 package modbus_rut
 
 import (
+	"encoding/json"
 	"github.com/goburrow/modbus"
 	"log"
 	"os"
 	"time"
 )
 
-type ModbusDevices struct {
-	deviceList []Device
+type ModbusDevices []struct {
+	Name     string    `json:"name"`
+	DeviceIp string    `json:"deviceIp"`
+	Timeout  int       `json:"timeout"`
+	Requests []Request `json:"requests"`
 }
 
-type Device struct {
-	deviceIp string
-	timeout  time.Duration
-	requests []Request
+type ModbusDevice struct {
+	Name     string
+	DeviceIp string
+	Timeout  int
+	Requests []Request
 }
+
 type Request struct {
-	slaveId      byte
-	function     int
-	startAddress uint16
-	quantity     uint16
-	registerMap  RegMap
+	SlaveId         byte   `json:"slaveId"`
+	Function        int    `json:"function"`
+	StartAddress    uint16 `json:"startAddress"`
+	Quantity        uint16 `json:"quantity"`
+	RegisterMap     []param `json:"params"`
 }
 
-type RegMap struct {
+type param struct {
+	ParamId  string `json:"paramId"`
+	ByteSize uint16 `json:"byteSize"`
+	DataType string `json:"dataType"`
 }
 
-func Start(modbusData chan []string) {
-	var devices ModbusDevices
-	for _, device := range devices.deviceList {
-		go deviceWorker(device, modbusData)
+func Test() {
+
+	deviceList := getModbusRequestsConfig("modbus_tcp_config.json")
+
+
+
+	for _, device := range deviceList {
+		log.Println(device.Name)
+		log.Println(device.DeviceIp)
+		log.Println(device.Timeout)
+		for _, request := range device.Requests {
+			log.Println(request.SlaveId)
+			log.Println(request.Function)
+			log.Println(request.StartAddress)
+			log.Println(request.Quantity)
+			log.Println(request.RegisterMap)
+			for _, p := range request.RegisterMap {
+				log.Println("paramId", p.ParamId)
+				log.Println("byteSize", p.ByteSize)
+				log.Println("dataType", p.DataType)
+			}
+		}
 	}
 }
 
-func deviceWorker(device Device, modbusData chan []string) {
-	handler := modbus.NewTCPClientHandler(device.deviceIp)
-	handler.Timeout = device.timeout
+
+func Start(deviceDataChan chan string, path string) {
+
+	deviceList := getModbusRequestsConfig(path)
+	for _, device := range deviceList {
+		go deviceWorker(ModbusDevice(device), deviceDataChan)
+	}
+
+}
+
+func getModbusRequestsConfig(path string) (deviceList ModbusDevices) {
+	var configFile *os.File
+	var err error
+	configFile, err = os.Open(path)
+	if err != nil {
+		log.Fatalf("cant open %s, err %v\n", path, err.Error())
+		return nil
+	}
+	defer configFile.Close()
+	err = json.NewDecoder(configFile).Decode(&deviceList)
+	if err != nil {
+		log.Fatalf("cant decode %s, err %v\n", path, err.Error())
+		return nil
+	}
+	return
+}
+
+func deviceWorker(device ModbusDevice, deviceDataChan chan string) {
+	handler := modbus.NewTCPClientHandler(device.DeviceIp)
+	handler.Timeout = time.Duration(device.Timeout)
 	for {
 		err := handler.Connect()
 		if err != nil {
 			log.Println(err)
 			continue
 		}
-		RequestsService(device.requests, modbusData, handler)
+		RequestsService(device.Requests, deviceDataChan, handler)
 	}
 }
 
-func RequestsService(requests []Request, modbusData chan []string, handler *modbus.TCPClientHandler) {
+func RequestsService(requests []Request, deviceDataChan chan string, handler *modbus.TCPClientHandler) {
 	defer handler.Close()
 	var client modbus.Client
 	var results []byte
-	var err error
 	for {
 		for _, request := range requests {
-			handler.SlaveId = request.slaveId
+			handler.SlaveId = request.SlaveId
 			client = modbus.NewClient(handler)
-			switch request.function {
+			switch request.Function {
 			case 1:
-				continue
+				results = errHandlerBA(client.ReadCoils(request.StartAddress, request.Quantity))
 			case 2:
-				continue
+				results = errHandlerBA(client.ReadDiscreteInputs(request.StartAddress, request.Quantity))
 			case 3:
-				results, err = client.ReadHoldingRegisters(request.startAddress, request.quantity)
-				if err != nil {
-					log.Printf("RequestsService err %v\n", err)
-				}
+				results = errHandlerBA(client.ReadHoldingRegisters(request.StartAddress, request.Quantity))
+			case 4:
+				results = errHandlerBA(client.ReadInputRegisters(request.StartAddress, request.Quantity))
+			case 5:
+				results = errHandlerBA(client.WriteSingleCoil(request.StartAddress, uint16(69)))
+			case 6:
+				results = errHandlerBA(client.WriteSingleRegister(request.StartAddress, uint16(69)))
+			case 15:
+				results = errHandlerBA(client.WriteMultipleCoils(request.StartAddress, request.Quantity, []byte{69}))
+			case 16:
+				results = errHandlerBA(client.WriteMultipleRegisters(request.StartAddress, request.Quantity, []byte{69}))
+			//case 22:
+			//	results = errHandlerBA(client.MaskWriteRegister(address, andMask, orMask uint16))
+			//case 23:
+			//	results = errHandlerBA(client.ReadWriteMultipleRegisters(readAddress, readQuantity, writeAddress, writeQuantity uint16, value []byte))
+			case 24:
+				results = errHandlerBA(client.ReadFIFOQueue(request.StartAddress))
 			default:
 				continue
 			}
-			modbusData <- modbusConvertService(results, request.registerMap)
+			log.Println(results)
+			deviceDataChan <- modbusConvertService(results, request.RegisterMap)
 		}
 	}
+}
+
+func errHandlerBA(res []byte, err error) []byte {
+	if err != nil {
+		log.Printf("RequestsService err %v\n", err)
+	}
+	return res
 }
 
 func GetModbus321321ata() []byte {

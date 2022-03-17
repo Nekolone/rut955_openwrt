@@ -16,7 +16,7 @@ func getOutboundIP() string {
 		log.Fatal("get ip error", err)
 	}
 	defer func(conn net.Conn) {
-		err := conn.Close()
+		err = conn.Close()
 		if err != nil {
 			log.Println("cant close connection")
 		}

@@ -3,14 +3,16 @@ package server
 import (
 	"log"
 	"net"
+	"rut955_openwrt/internal/modbus_rut"
 	"time"
 )
 
-func Start(serverListenPort string, dataChan chan string) {
+func Start(serverListenPort string, dataChan chan string, modbusConfigPath string) {
 	log.Println("ListenServer start")
 
 	deviceDataChan := make(chan string, 1000)
-	go getDataFromDevices(serverListenPort, deviceDataChan)
+
+	go getDataFromDevices(serverListenPort, deviceDataChan, modbusConfigPath)
 
 	recTimer := time.NewTicker(time.Second * 10)
 	for range recTimer.C {
@@ -32,8 +34,9 @@ func sendToDataChan(dataChan chan string, deviceDataChan chan string) {
 	}
 }
 
-func getDataFromDevices(port string, deviceDataChan chan string) {
-	log.Println(port)
+func getDataFromDevices(port string, deviceDataChan chan string, modbusConfigPath string) {
+	modbus_rut.Start(deviceDataChan, modbusConfigPath)
+
 	serverConnection, err := net.Listen("tcp", string(getOutboundIP())+port)
 	if err != nil {
 		log.Fatal("listenService error")

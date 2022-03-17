@@ -17,6 +17,7 @@ type config struct {
 	ClientIp         string `json:"client_ip"`
 	BufferPath       string `json:"buffer_path"`
 	ServerListenPort string `json:"server_listen_port"`
+	ModbusConfigPath string `json:"modbusConfigPath"`
 }
 
 func main() {
@@ -46,12 +47,13 @@ func launch(path string) error {
 			ClientIp:         "192.168.100.107:11113",
 			BufferPath:       "buffer.buf",
 			ServerListenPort: ":11111",
+			ModbusConfigPath: "modbus_tcp_config.json",
 		}
 	}
 
 	go func(wgp *sync.WaitGroup) {
-		err := startClient(&Config, dataChan)
 		defer wgp.Done()
+		err = startClient(&Config, dataChan)
 		if err != nil {
 			log.Fatal("client routine error")
 		}
@@ -59,8 +61,8 @@ func launch(path string) error {
 	}(&wg)
 
 	go func(wgp *sync.WaitGroup) {
-		err := startServer(&Config, dataChan)
 		defer wgp.Done()
+		err = startServer(&Config, dataChan)
 		if err != nil {
 			log.Fatal("server routine error")
 		}
@@ -74,18 +76,18 @@ func launch(path string) error {
 func getConfig(path string) (config, error) {
 	var cfg config
 	configFile, err := os.Open(path)
-	defer configFile.Close()
 	if err != nil {
 		fmt.Println(err.Error())
 		return config{}, err
 	}
+	defer configFile.Close()
 	jsonParser := json.NewDecoder(configFile)
-	jsonParser.Decode(&cfg)
+	_ = jsonParser.Decode(&cfg)
 	return cfg, nil
 }
 
 func startServer(conf *config, dataChan chan string) error {
-	server.Start(conf.ServerListenPort, dataChan)
+	server.Start(conf.ServerListenPort, dataChan, conf.ModbusConfigPath)
 	return nil
 }
 

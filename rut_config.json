@@ -4,5 +4,6 @@
   "connection_type": "tcp",
   "client_ip":"192.168.57.161:12332",
   "buffer_path": "buffer.buf",
-  "server_listen_port":":11111"
+  "server_listen_port":":11111",
+  "modbusConfigPath": "modbus_tcp_config.json"
 }
