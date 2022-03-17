@@ -19,10 +19,13 @@ func modbusConvertService(byteArray []byte, registerMap []param) (result string)
 		str, byteArray = getData(p, byteArray)
 		addToResult(&result, str)
 	}
-	return
+	return result
 }
 
 func addToResult(s *string, data string) {
+	if len(*s) == 0{
+		*s = data
+	}
 	*s = fmt.Sprintf("%s,%s", *s, data)
 }
 
@@ -32,7 +35,6 @@ func getData(p param, array []byte) (string, []byte) {
 		return "", array
 	}
 	res := convertByteByMap(p, array[:p.ByteSize])
-	log.Println("afterConvert",p,array , res)
 	return fmt.Sprintf("%s:%d:%s", p.ParamId, res.dataType, res.dataValue), array[p.ByteSize:]
 }
 

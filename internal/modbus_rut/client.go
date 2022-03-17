@@ -139,7 +139,8 @@ func RequestsService(requests []Request, deviceDataChan chan string, handler *mo
 				continue
 			}
 			log.Println(results)
-			deviceDataChan <- modbusConvertService(results, request.RegisterMap)
+			ready := modbusConvertService(results, request.RegisterMap)
+			deviceDataChan <- ready
 		}
 	}
 }
