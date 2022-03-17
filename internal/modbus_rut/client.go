@@ -92,10 +92,8 @@ func getModbusRequestsConfig(path string) (deviceList ModbusDevices) {
 
 func deviceWorker(device ModbusDevice, deviceDataChan chan string) {
 	handler := modbus.NewTCPClientHandler(device.DeviceIp)
-	log.Println("here?")
 	handler.Timeout = time.Duration(device.Timeout) * time.Second
-	recTimer := time.NewTicker(time.Second*15)
-	for range recTimer.C{
+	for {
 		err := handler.Connect()
 		if err != nil {
 			log.Println(err)
@@ -109,7 +107,8 @@ func RequestsService(requests []Request, deviceDataChan chan string, handler *mo
 	defer handler.Close()
 	var client modbus.Client
 	var results []byte
-	for {
+	recTimer := time.NewTicker(time.Second*15)
+	for range recTimer.C {
 		for _, request := range requests {
 			handler.SlaveId = request.SlaveId
 			client = modbus.NewClient(handler)
@@ -139,11 +138,7 @@ func RequestsService(requests []Request, deviceDataChan chan string, handler *mo
 			default:
 				continue
 			}
-			log.Println(request.RegisterMap)
-			ready := modbusConvertService(results, request.RegisterMap)
-			log.Println(ready)
-
-			deviceDataChan <- ready
+			deviceDataChan <- modbusConvertService(results, request.RegisterMap)
 		}
 	}
 }
