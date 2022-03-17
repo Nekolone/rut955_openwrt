@@ -40,9 +40,9 @@ func getData(p param, array []byte) (string, []byte) {
 func convertByteByMap(p param, array []byte) DataFromBytes {
 	switch p.DataType {
 	case "int8":
-		return DataFromBytes{1, fmt.Sprintf("%v", GetSigInt8(array))}
+		return DataFromBytes{1, fmt.Sprintf("%v", GetSigInt8(array[0]))}
 	case "uint8":
-		return DataFromBytes{1, fmt.Sprintf("%v", GetUnsInt8(array))}
+		return DataFromBytes{1, fmt.Sprintf("%v", GetUnsInt8(array[0]))}
 	case "int16":
 		return DataFromBytes{1, fmt.Sprintf("%v", GetSigInt16(array,
 			p.ByteOrder[0], p.ByteOrder[1]))}
@@ -57,11 +57,11 @@ func convertByteByMap(p param, array []byte) DataFromBytes {
 			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3]))}
 	case "float32":
 		//return DataFromBytes{2, fmt.Sprintf("%0.4f",GetFloat32(array,unpack4())))}
-		return DataFromBytes{2, fmt.Sprintf("%v", GetFloat32(array,
+		return DataFromBytes{2, fmt.Sprintf("%.4f", GetFloat32(array,
 			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3]))}
 	case "float64":
 		//return DataFromBytes{2, fmt.Sprintf("%0.4f",GetFloat32(array,unpack4())))}
-		return DataFromBytes{2, fmt.Sprintf("%v", GetFloat64(array,
+		return DataFromBytes{2, fmt.Sprintf("%.4f", GetFloat64(array,
 			p.ByteOrder[0], p.ByteOrder[1], p.ByteOrder[2], p.ByteOrder[3], p.ByteOrder[4],
 			p.ByteOrder[5], p.ByteOrder[6], p.ByteOrder[7]))}
 
