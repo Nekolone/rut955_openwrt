@@ -11,14 +11,14 @@ import (
 type ModbusDevices []struct {
 	Name     string    `json:"name"`
 	DeviceIp string    `json:"deviceIp"`
-	Timeout  int       `json:"timeout"`
+	Timeout  int64       `json:"timeout"`
 	Requests []Request `json:"requests"`
 }
 
 type ModbusDevice struct {
 	Name     string
 	DeviceIp string
-	Timeout  int
+	Timeout  int64
 	Requests []Request
 }
 
@@ -92,7 +92,8 @@ func getModbusRequestsConfig(path string) (deviceList ModbusDevices) {
 
 func deviceWorker(device ModbusDevice, deviceDataChan chan string) {
 	handler := modbus.NewTCPClientHandler(device.DeviceIp)
-	handler.Timeout = time.Duration(device.Timeout)
+	log.Println("here?")
+	handler.Timeout = time.Duration(device.Timeout) * time.Second
 	for {
 		err := handler.Connect()
 		if err != nil {
