@@ -16,7 +16,6 @@ type DataFromBytes struct {
 func modbusConvertService(byteArray []byte, registerMap []param) (result string) {
 	var str string
 	for _, p := range registerMap {
-		log.Println(11111)
 		str, byteArray = getData(p, byteArray)
 		addToResult(&result, str)
 	}
@@ -26,6 +25,7 @@ func modbusConvertService(byteArray []byte, registerMap []param) (result string)
 func addToResult(s *string, data string) {
 	if len(*s) == 0{
 		*s = data
+		return
 	}
 	*s = fmt.Sprintf("%s,%s", *s, data)
 }

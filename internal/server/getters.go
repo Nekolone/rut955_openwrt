@@ -2,6 +2,7 @@ package server
 
 import (
 	"fmt"
+	"github.com/fatih/set"
 	"log"
 	"net"
 	"os/exec"
@@ -29,14 +30,29 @@ func getOutboundIP() string {
 
 func getDeviceData(deviceDataChan chan string) [][]string {
 	var dataList []string
+	dataSet := set.New(set.ThreadSafe)
 	for {
 		select {
 		case data := <-deviceDataChan:
-			dataList = append(dataList, data)
+			dataList = strings.Split(data,",")
+			for _, s := range dataList {
+				dataSet.Add(s)
+			}
+
 		default:
+			dataList = nil
+			for _, data := range dataSet.List() {
+				dataList = append(dataList, fmt.Sprintf("%v",data))
+			}
 			return makeSlices(100, dataList)
 		}
 	}
+}
+
+func mapToStringArray(set map[string]bool)(result []string)  {
+
+
+	return
 }
 
 func getDateTime() string {
