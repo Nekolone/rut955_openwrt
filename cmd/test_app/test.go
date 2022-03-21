@@ -1,28 +1,61 @@
 package main
 
 import (
-	"github.com/fatih/set"
-	"log"
+	"fmt"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"time"
 )
 
-func main() {
-	//deviceDataChan := make(chan string, 1000)
-	//modbus_rut.Start(deviceDataChan, "\"modbus_tcp_config.json\"")
-	//modbus_rut.Test()
-	//	arr := []byte{168,37,178,134,187,42,64,254,64,147,170,48,239,119,242,128}
-	//	modbus_rut.GetFloat64(arr,1,2,3,4,5,6,7,8)
-	//	modbus_rut.GetFloat64(arr,7,8,5,6,3,4,1,2)
-	//}
+var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+	fmt.Printf("Received message: %s from topic: %s\n", msg.Payload(), msg.Topic())
+}
 
-	s := set.New(set.ThreadSafe) // thread safe version
-	s.Add("istanbul")
-	s.Add("istanbul1")
-	s.Add("istanbul13")
-	s.Add("istanbul134")
-	log.Println(s)
-	a := s.List()
-	log.Println(a)
-	for _, i := range a {
-		log.Println(i)
+var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
+	fmt.Println("Connected")
+}
+
+var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
+	fmt.Printf("Connect lost: %v", err)
+}
+
+func main() {
+	var broker = "192.168.35.72"
+	var port = 1883
+	opts := mqtt.NewClientOptions()
+	opts.AddBroker(fmt.Sprintf("tcp://%s:%d", broker, port))
+	opts.SetClientID("1")
+	//opts.SetUsername("emqx")
+	//opts.SetPassword("public")
+	opts.SetDefaultPublishHandler(messagePubHandler)
+	opts.OnConnect = connectHandler
+	opts.OnConnectionLost = connectLostHandler
+
+	client := mqtt.NewClient(opts)
+	if token := client.Connect(); token.Wait() && token.Error() != nil {
+		panic(token.Error())
 	}
+
+	sub(client)
+	//publish(client)
+
+	time.Sleep(5 * time.Second)
+
+	client.Disconnect(250)
+}
+
+//func publish(client mqtt.Client) {
+//	num := 10
+//	for i := 0; i < num; i++ {
+//		//text := fmt.Sprintf("Message %d", i)
+//		token := client.Publish("testTopic", 0, false, text)
+//		token.Wait()
+//		time.Sleep(time.Second)
+//	}
+//}
+
+func sub(client mqtt.Client) {
+	topic := "#"
+	token := client.Subscribe(topic, 1, nil)
+	token.Wait()
+	fmt.Printf("Subscribed to topic: %s", topic)
 }
