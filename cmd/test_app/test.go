@@ -34,6 +34,8 @@ func main() {
 	if token := c.Connect(); token.Wait() && token.Error() != nil {
 		panic(token.Error())
 	}
+	c.IsConnected()
+
 
 	//subscribe to the topic /go-mqtt/sample and request messages to be delivered
 	//at a maximum qos of zero, wait for the receipt to confirm the subscription
@@ -41,6 +43,8 @@ func main() {
 		fmt.Println(token.Error())
 		os.Exit(1)
 	}
+
+	c.SubscribeMultiple(map[string]byte{"modbusData":0,"modbusData2":0},msgHandl)
 
 	//Publish 5 messages to /go-mqtt/sample at qos 1 and wait for the receipt
 	//from the server after sending each message

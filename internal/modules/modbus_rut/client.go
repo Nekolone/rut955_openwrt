@@ -11,7 +11,7 @@ import (
 type ModbusDevices []struct {
 	Name     string    `json:"name"`
 	DeviceIp string    `json:"deviceIp"`
-	Timeout  int64       `json:"timeout"`
+	Timeout  int64     `json:"timeout"`
 	Requests []Request `json:"requests"`
 }
 
@@ -23,10 +23,10 @@ type ModbusDevice struct {
 }
 
 type Request struct {
-	SlaveId         byte   `json:"slaveId"`
-	Function        int    `json:"function"`
-	StartAddress    uint16 `json:"startAddress"`
-	Quantity        uint16 `json:"quantity"`
+	SlaveId         byte    `json:"slaveId"`
+	Function        int     `json:"function"`
+	StartAddress    uint16  `json:"startAddress"`
+	Quantity        uint16  `json:"quantity"`
 	RegisterMap     []param `json:"params"`
 }
 
@@ -36,33 +36,33 @@ type param struct {
 	DataType string `json:"dataType"`
 	ByteOrder []int `json:"byteOrder"`
 }
-
-func Test() {
-
-	deviceList := getModbusRequestsConfig("modbus_tcp_config.json")
-
-
-
-	for _, device := range deviceList {
-		log.Println(device.Name)
-		log.Println(device.DeviceIp)
-		log.Println(device.Timeout)
-		for _, request := range device.Requests {
-			log.Println(request.SlaveId)
-			log.Println(request.Function)
-			log.Println(request.StartAddress)
-			log.Println(request.Quantity)
-			log.Println(request.RegisterMap)
-			for _, p := range request.RegisterMap {
-				log.Println("paramId", p.ParamId)
-				log.Println("byteSize", p.ByteSize)
-				log.Println("dataType", p.DataType)
-				log.Println("byteOrder", p.ByteOrder)
-			}
-		}
-	}
-}
-
+//
+//func Test() {
+//
+//	deviceList := getModbusRequestsConfig("modbus_tcp_config.json")
+//
+//
+//
+//	for _, device := range deviceList {
+//		log.Println(device.Name)
+//		log.Println(device.DeviceIp)
+//		log.Println(device.Timeout)
+//		for _, request := range device.Requests {
+//			log.Println(request.SlaveId)
+//			log.Println(request.Function)
+//			log.Println(request.StartAddress)
+//			log.Println(request.Quantity)
+//			log.Println(request.RegisterMap)
+//			for _, p := range request.RegisterMap {
+//				log.Println("paramId", p.ParamId)
+//				log.Println("byteSize", p.ByteSize)
+//				log.Println("dataType", p.DataType)
+//				log.Println("byteOrder", p.ByteOrder)
+//			}
+//		}
+//	}
+//}
+//
 
 func Start(deviceDataChan chan string, path string) {
 
@@ -96,7 +96,6 @@ func deviceWorker(device ModbusDevice, deviceDataChan chan string) {
 	for {
 		err := handler.Connect()
 		if err != nil {
-			log.Println(err)
 			continue
 		}
 		RequestsService(device.Requests, deviceDataChan, handler)
@@ -150,19 +149,19 @@ func errHandlerBA(res []byte, err error) []byte {
 	return res
 }
 
-func GetModbus321321ata() []byte {
-	handler := modbus.NewTCPClientHandler("172.16.1.12:502")
-	handler.Timeout = 10 * time.Second
-	handler.SlaveId = 0x0C
-	handler.Logger = log.New(os.Stdout, "test: ", log.LstdFlags)
-	// Connect manually so that multiple requests are handled in one connection session
-	err := handler.Connect()
-	if err != nil {
-		log.Println(err)
-	}
-	defer handler.Close()
-
-	client := modbus.NewClient(handler)
-	results, err := client.ReadHoldingRegisters(0, 20)
-	return results
-}
+//func GetModbus321321ata() []byte {
+//	handler := modbus.NewTCPClientHandler("172.16.1.12:502")
+//	handler.Timeout = 10 * time.Second
+//	handler.SlaveId = 0x0C
+//	handler.Logger = log.New(os.Stdout, "test: ", log.LstdFlags)
+//	// Connect manually so that multiple requests are handled in one connection session
+//	err := handler.Connect()
+//	if err != nil {
+//		log.Println(err)
+//	}
+//	defer handler.Close()
+//
+//	client := modbus.NewClient(handler)
+//	results, err := client.ReadHoldingRegisters(0, 20)
+//	return results
+//}

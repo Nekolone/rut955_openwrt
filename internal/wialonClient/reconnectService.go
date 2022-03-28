@@ -1,4 +1,4 @@
-package client
+package wialonClient
 
 import (
 	"log"
@@ -6,8 +6,7 @@ import (
 	"time"
 )
 
-func ReconnectingService(tcpAddr **net.TCPAddr, network string, clientConnection **net.TCPConn, networkStatus *string,
-	id string, pass string) {
+func ReconnectingService(conf *Config, tcpAddr **net.TCPAddr, clientConnection **net.TCPConn, networkStatus *string) {
 	recTimer := time.NewTicker(time.Minute)
 	log.Println("ReconnectingService start")
 	var err error

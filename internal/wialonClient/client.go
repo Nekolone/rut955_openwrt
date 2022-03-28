@@ -1,11 +1,23 @@
-package client
+package wialonClient
 
 import (
 	"log"
 	"net"
 )
 
-func ConnectToServer(servAddr string, network string, networkStatus *string, id string, pass string) (
+type Config struct {
+
+}
+
+func Start(dataChan chan string, conf *Config)  {
+	networkStatus := "start"
+
+	clientConnection, tcpAddr := ConnectToServer(conf, &networkStatus)
+	go ReconnectingService(conf, &tcpAddr, &clientConnection, &networkStatus)
+	DataWorker(conf, &networkStatus, &clientConnection, dataChan)
+}
+
+func ConnectToServer(conf *Config, networkStatus *string) (
 	*net.TCPConn, *net.TCPAddr) {
 
 	log.Printf("connecting to server %v", servAddr)
@@ -38,7 +50,7 @@ func ConnectToServer(servAddr string, network string, networkStatus *string, id 
 	return clientConnection, tcpAddr
 }
 
-func DataWorker(networkStatus *string, clientConnection **net.TCPConn, dataChan chan string, bufferPath string) {
+func DataWorker(conf *Config, networkStatus *string, clientConnection **net.TCPConn, dataChan chan string) {
 	log.Println("DataWorker start")
 
 	for {

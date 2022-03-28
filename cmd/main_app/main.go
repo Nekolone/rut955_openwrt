@@ -5,23 +5,19 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"rut955_openwrt/internal/client"
-	"rut955_openwrt/internal/server"
+	"rut955_openwrt/internal/wialonClient"
+	"rut955_openwrt/internal/dataProcessingService"
 	"sync"
 )
 
-type config struct {
-	DeviceId         string `json:"device_id"`
-	DevicePass       string `json:"device_pass"`
-	ConnectionType   string `json:"connection_type"`
-	ClientIp         string `json:"client_ip"`
-	BufferPath       string `json:"buffer_path"`
-	ServerListenPort string `json:"server_listen_port"`
-	ModbusConfigPath string `json:"modbusConfigPath"`
+type RutPathsConfig struct {
+	WialonClientConfigPath          string `json:"wialon_client_config_path"`
+	DataProcessingServiceConfigPath string `json:"data_processing_service_config_path"`
+	ModulesConfigPath               string `json:"modules_config_path"`
 }
 
 func main() {
-	configPath := "rut_config.json"
+	configPath := "rut_gateway_config_paths.json"
 	err := launch(configPath)
 	if err != nil {
 		log.Fatal("launch error")
@@ -30,31 +26,24 @@ func main() {
 	log.Println("service finished")
 }
 
-func launch(path string) error {
+func launch(path string) (err error) {
 
-	dataChan := make(chan string, 20)
+	dataChan := make(chan string, 50)
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
-	Config, err := getConfig(path)
+	var rutConfigPaths *RutPathsConfig
+	rutConfigPaths, err = getRutConfigPaths(path)
 	if err != nil {
-		log.Println("config path error, using default config")
-		Config = config{
-			DeviceId:         "00000000001",
-			DevicePass:       "passwd",
-			ConnectionType:   "tcp",
-			ClientIp:         "192.168.100.107:11113",
-			BufferPath:       "buffer.buf",
-			ServerListenPort: ":11111",
-			ModbusConfigPath: "modbus_tcp_config.json",
-		}
+		log.Println("RutPathsConfig path error, using default RutPathsConfig")
+		rutConfigPaths = setDefaultRutGatewayConfig()
 	}
+	wialonClientConfig, dataPSConfig, dataPSModulesConfig := getRutConfig(rutConfigPaths)
 
 	go func(wgp *sync.WaitGroup) {
 		defer wgp.Done()
-		err = startClient(&Config, dataChan)
-		if err != nil {
+		if err = startWialonClient(dataChan, wialonClientConfig); err != nil {
 			log.Fatal("client routine error")
 		}
 		log.Println("client stopped")
@@ -62,43 +51,126 @@ func launch(path string) error {
 
 	go func(wgp *sync.WaitGroup) {
 		defer wgp.Done()
-		err = startServer(&Config, dataChan)
-		if err != nil {
+		if err = startDataProcessingService(dataChan, dataPSConfig, dataPSModulesConfig); err != nil {
 			log.Fatal("server routine error")
 		}
 		log.Println("server stopped")
 	}(&wg)
 
 	wg.Wait()
+
 	return nil
 }
 
-func getConfig(path string) (config, error) {
-	var cfg config
+func startDataProcessingService(
+	dataChan chan string,
+	dataPSConfig *dataProcessingService.Config,
+	dataPSModulesConfig *dataProcessingService.ModulesConfig,
+) error {
+	dataProcessingService.Start(dataChan, dataPSConfig, dataPSModulesConfig)
+	return nil
+}
+
+func startWialonClient(dataChan chan string, wialonConfig *wialonClient.Config) error {
+	wialonClient.Start(dataChan, wialonConfig)
+	return nil
+}
+
+func getRutConfig(paths *RutPathsConfig) (*wialonClient.Config, *dataProcessingService.Config, *dataProcessingService.ModulesConfig) {
+	wialonConfig, err := getWialonConfig(paths.WialonClientConfigPath)
+	if err != nil {
+		wialonConfig = setDefaultWialonClientConfig()
+	}
+	dPSConfig, err := getDPSConfig(paths.DataProcessingServiceConfigPath)
+	if err != nil {
+		dPSConfig = setDefaultDataProcessingServiceConfig()
+	}
+	dPSModulesConfig, err := getDPSModulesConfig(paths.ModulesConfigPath)
+	if err != nil {
+		dPSModulesConfig = setDefaultDPSModulesConfig()
+	}
+	return wialonConfig, dPSConfig, dPSModulesConfig
+}
+
+func getDPSModulesConfig(path string) (*dataProcessingService.ModulesConfig, error) {
 	configFile, err := os.Open(path)
 	if err != nil {
 		fmt.Println(err.Error())
-		return config{}, err
+		return &dataProcessingService.ModulesConfig{}, err
 	}
 	defer configFile.Close()
+
 	jsonParser := json.NewDecoder(configFile)
+	var cfg dataProcessingService.ModulesConfig
 	_ = jsonParser.Decode(&cfg)
-	return cfg, nil
+	return &cfg, nil
 }
 
-func startServer(conf *config, dataChan chan string) error {
-	server.Start(conf.ServerListenPort, dataChan, conf.ModbusConfigPath)
-	return nil
+func getDPSConfig(path string) (*dataProcessingService.Config, error) {
+	configFile, err := os.Open(path)
+	if err != nil {
+		fmt.Println(err.Error())
+		return &dataProcessingService.Config{}, err
+	}
+	defer configFile.Close()
+
+	jsonParser := json.NewDecoder(configFile)
+	var cfg dataProcessingService.Config
+	_ = jsonParser.Decode(&cfg)
+	return &cfg, nil
 }
 
-func startClient(conf *config, dataChan chan string) error {
-	networkStatus := "start"
+func getWialonConfig(path string) (*wialonClient.Config, error) {
+	configFile, err := os.Open(path)
+	if err != nil {
+		fmt.Println(err.Error())
+		return &wialonClient.Config{}, err
+	}
+	defer configFile.Close()
 
-	clientConnection, tcpAddr := client.ConnectToServer(conf.ClientIp, conf.ConnectionType, &networkStatus,
-		conf.DeviceId, conf.DevicePass)
-	go client.ReconnectingService(&tcpAddr, conf.ConnectionType, &clientConnection, &networkStatus, conf.DeviceId,
-		conf.DevicePass)
-	client.DataWorker(&networkStatus, &clientConnection, dataChan, conf.BufferPath)
-	//Сделать стоп и рестарт
-	return nil
+	jsonParser := json.NewDecoder(configFile)
+	var cfg wialonClient.Config
+	_ = jsonParser.Decode(&cfg)
+	return &cfg, nil
+}
+
+func setDefaultDPSModulesConfig() *dataProcessingService.ModulesConfig {
+	return &dataProcessingService.ModulesConfig{
+
+	}
+}
+
+func setDefaultDataProcessingServiceConfig() *dataProcessingService.Config {
+	return &dataProcessingService.Config{
+
+	}
+}
+
+func setDefaultWialonClientConfig() *wialonClient.Config {
+	return &wialonClient.Config{
+
+	}
+}
+
+func setDefaultRutGatewayConfig() *RutPathsConfig {
+	return &RutPathsConfig{
+		WialonClientConfigPath:          "rut_wialon_client_config.json",
+		DataProcessingServiceConfigPath: "rut_data_processing_service_config.json",
+		ModulesConfigPath:               "rut_modules_config.json",
+	}
+}
+
+func getRutConfigPaths(path string) (*RutPathsConfig, error) {
+
+	configFile, err := os.Open(path)
+	if err != nil {
+		fmt.Println(err.Error())
+		return &RutPathsConfig{}, err
+	}
+	defer configFile.Close()
+
+	jsonParser := json.NewDecoder(configFile)
+	var cfg RutPathsConfig
+	_ = jsonParser.Decode(&cfg)
+	return &cfg, nil
 }
