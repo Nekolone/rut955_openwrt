@@ -1,30 +1,33 @@
 package dataProcessingService
 
 import (
-	"encoding/json"
 	"log"
-	"os"
 	"rut955_openwrt/internal/modules/modbus_rut"
 	"rut955_openwrt/internal/modules/mqtt"
 	"time"
 )
 
-type serverConfig struct {
-	MqttConfig   string
-	ModbusConfig string
-}
+//type serverConfig struct {
+//	MqttConfig   string
+//	ModbusConfig string
+//}
 
 type Config struct {
+	DataSourceChannelSize int `json:"data_source_channel_size"`
+	TickerTime            int `json:"ticker_time"`
+}
 
-
+type Module struct {
+	Name             string `json:"name"`
+	ModuleConfigPath string `json:"module_config_path"`
 }
 
 type ModulesConfig struct {
-
+	Modules []Module `json:"modules"`
 }
 
 func Start(dataChan chan string, config *Config, modulesConfig *ModulesConfig) {
-	log.Println("ListenServer start")
+	log.Println("Data Processing Service start")
 
 	//config, err := getServerConfig("data_server_config.json")
 	//if err != nil {
@@ -34,55 +37,58 @@ func Start(dataChan chan string, config *Config, modulesConfig *ModulesConfig) {
 	//	}
 	//}
 
-	dataSourceChan := make(chan string, 1000)
+	dataSourceChan := make(chan string, config.DataSourceChannelSize)
 
 	modulesConfig.connectDataSourceModules(dataSourceChan)
 
-	for range time.NewTicker(time.Second * 10).C {
+	for range time.NewTicker(time.Second * time.Duration(config.TickerTime)).C {
 		sendToDataChan(dataChan, dataSourceChan)
 	}
 }
 
-func getServerConfig(path string) (config serverConfig, err error) {
-	var configFile *os.File
-	configFile, err = os.Open(path)
-	if err != nil {
-		log.Fatalf("cant open %s, err %v\n", path, err.Error())
-		return
-	}
-	defer configFile.Close()
-	err = json.NewDecoder(configFile).Decode(&config)
-	if err != nil {
-		log.Fatalf("cant decode %s, err %v\n", path, err.Error())
-		return
-	}
-	return
-}
+//func getServerConfig(path string) (config serverConfig, err error) {
+//	var configFile *os.File
+//	configFile, err = os.Open(path)
+//	if err != nil {
+//		log.Fatalf("cant open %s, err %v\n", path, err.Error())
+//		return
+//	}
+//	defer configFile.Close()
+//	err = json.NewDecoder(configFile).Decode(&config)
+//	if err != nil {
+//		log.Fatalf("cant decode %s, err %v\n", path, err.Error())
+//		return
+//	}
+//	return
+//}
 
-func sendToDataChan(dataChan chan string, deviceDataChan chan string) {
-	dataList := getDeviceData(deviceDataChan)
-	//data = ["","","","","","","","","","","",""]
-	//msg = ["#type#params","#type#params","#type#params"]
-	attr := []string{
+func sendToDataChan(dataChan chan string, dataSourceChan chan string) {
+	paramsList := getDeviceData(dataSourceChan)
+	var attr = []string{
 		getDateTime(), getLat(), getLon(), getSpeed(), getCourse(), getHeight(), getSats(), getHdop(), getInputs(),
 		getOutputs(), getAdc(), getIbutton(),
 	}
 	dataType := "D"
-	for _, params := range dataList {
+	for _, params := range paramsList {
 		dataChan <- convertDataToSend(dataType, attr, params)
 	}
 }
 
-func (config *ModulesConfig) connectDataSourceModules(deviceDataChan chan string) {
+func (config *ModulesConfig) connectDataSourceModules(dataSourceChan chan string) {
+	for _, module := range config.Modules {
+		startModule(&module, dataSourceChan)
+	}
+}
 
-	modbus_rut.Start(deviceDataChan, config.ModbusConfig)
-	mqtt.Start(deviceDataChan, config.MqttConfig)
+func startModule(module *Module, dataSourceChan chan string) {
+	switch module.Name {
 
-	//serverConnection, err := net.Listen("tcp", string(getOutboundIP())+port)
-	//if err != nil {
-	//	log.Fatal("listenService error")
-	//}
-	//defer serverConnection.Close()
-	//
-	//listenService(serverConnection, deviceDataChan)
+	case "modbus":
+		modbus_rut.Start(dataSourceChan, module.ModuleConfigPath)
+	case "mqtt":
+		mqtt.Start(dataSourceChan, module.ModuleConfigPath)
+
+	default:
+		log.Printf("module %s not found", module.Name)
+	}
 }

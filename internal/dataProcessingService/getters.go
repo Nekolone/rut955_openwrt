@@ -3,37 +3,35 @@ package dataProcessingService
 import (
 	"fmt"
 	"github.com/fatih/set"
-	"log"
-	"net"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func getOutboundIP() string {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		log.Fatal("get ip error", err)
-	}
-	defer func(conn net.Conn) {
-		err = conn.Close()
-		if err != nil {
-			log.Println("cant close connection")
-		}
-	}(conn)
+//func getOutboundIP() string {
+//	conn, err := net.Dial("udp", "8.8.8.8:80")
+//	if err != nil {
+//		log.Fatal("get ip error", err)
+//	}
+//	defer func(conn net.Conn) {
+//		err = conn.Close()
+//		if err != nil {
+//			log.Println("cant close connection")
+//		}
+//	}(conn)
+//
+//	localAddr := conn.LocalAddr().(*net.UDPAddr)
+//
+//	return localAddr.IP.String()
+//}
 
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-
-	return localAddr.IP.String()
-}
-
-func getDeviceData(deviceDataChan chan string) [][]string {
+func getDeviceData(dataSourceChan chan string) [][]string {
 	var dataList []string
 	dataSet := set.New(set.ThreadSafe)
 	for {
 		select {
-		case data := <-deviceDataChan:
+		case data := <-dataSourceChan:
 			dataList = strings.Split(data,",")
 			for _, s := range dataList {
 				dataSet.Add(s)
@@ -47,12 +45,6 @@ func getDeviceData(deviceDataChan chan string) [][]string {
 			return makeSlices(100, dataList)
 		}
 	}
-}
-
-func mapToStringArray(set map[string]bool)(result []string)  {
-
-
-	return
 }
 
 func getDateTime() string {

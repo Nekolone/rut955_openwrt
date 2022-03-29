@@ -1,0 +1,42 @@
+[
+  {
+    "name": "map1",
+    "params": [
+      {
+        "paramId": "5182ADS",
+        "byteSize": 2,
+        "dataType": "float32"
+      },
+      {
+        "paramId": "4572WPS",
+        "byteSize": 1,
+        "dataType": "ASCII"
+      },
+      {
+        "paramId": "4572WPS",
+        "byteSize": 142,
+        "dataType": "string"
+      }
+    ]
+  },
+  {
+    "name": "map2",
+    "params": [
+      {
+        "paramId": "5182ADS",
+        "byteSize": 2,
+        "dataType": "float32"
+      },
+      {
+        "paramId": "4572WPS",
+        "byteSize": 1,
+        "dataType": "ASCII"
+      },
+      {
+        "paramId": "4572WPS",
+        "byteSize": 142,
+        "dataType": "string"
+      }
+    ]
+  }
+]

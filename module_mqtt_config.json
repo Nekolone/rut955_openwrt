@@ -1,0 +1,15 @@
+{
+  "clients": [
+    {
+      "ip_port": "127.0.0.1:18883",
+      "subscription_list":[
+        "#"
+      ],
+      "data_format": {
+        "data_name_field": "req_name",
+        "data_type_field": "type",
+        "data_value_field":  "data_value"
+      }
+    }
+  ]
+}

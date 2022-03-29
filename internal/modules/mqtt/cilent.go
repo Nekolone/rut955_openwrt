@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+type Clients struct {
+	Clients []Client `json:"clients"`
+}
+
 type Client struct {
 	IpPort           string     `json:"ip_port"`
 	SubscriptionList []string   `json:"subscription_list"`
@@ -21,25 +25,22 @@ type DataFormat struct {
 	DataValueField string `json:"data_value_field"`
 }
 
-type ClientList struct {
-	Clients []Client `json:"client_list"`
-}
-
-func Start(deviceDataChan chan string, path string) {
-	clientList, err := getMqttConfig(path)
+func Start(dataSourceChan chan string, path string) {
+	log.Println()
+	mqttConfig, err := getMqttConfig(path)
 	if err != nil {
 		log.Println("mqtt config path error, default config for local mqtt broker")
-		clientList = setDefaultMqttConfig()
+		mqttConfig = setDefaultMqttConfig()
 	}
 
-	for _, client := range clientList.Clients {
-		go clientHandler(&client, deviceDataChan)
+	for _, clientConfig := range mqttConfig.Clients {
+		go clientHandler(clientConfig, dataSourceChan)
 	}
 }
 
-func CallbackModifier(deviceDataChan chan string, dataFormat DataFormat) MQTT.MessageHandler {
+func CallbackModifier(dataSourceChan chan string, dataFormat DataFormat) MQTT.MessageHandler {
 	var res MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
-		deviceDataChan <- getValueFromJson(dataFormat, msg.Payload())
+		dataSourceChan <- getValueFromJson(dataFormat, msg.Payload())
 	}
 	return res
 }
@@ -56,25 +57,28 @@ func getValueFromJson(dataFormat DataFormat, payload []byte) string {
 	}
 	return fmt.Sprintf("%s:%s:%s", payloadMap[dataFormat.DataNameField], payloadMap[dataFormat.DataTypeField],
 		payloadMap[dataFormat.DataValueField])
+	//return map[string]string{
+	//	"name":  payloadMap[dataFormat.DataNameField],
+	//	"type":  payloadMap[dataFormat.DataTypeField],
+	//	"value": payloadMap[dataFormat.DataValueField],
+	//}
 }
 
-func clientHandler(client *Client, deviceDataChan chan string) {
-	opts := MQTT.NewClientOptions().AddBroker(fmt.Sprintf("tcp://%s", client.IpPort))
-	c := MQTT.NewClient(opts)
-	subMap := make(map[string]byte)
+func clientHandler(clientConfig Client, dataSourceChan chan string) {
+	opts := MQTT.NewClientOptions().AddBroker(fmt.Sprintf("tcp://%s", clientConfig.IpPort))
+	mqttClient := MQTT.NewClient(opts)
 
-	for _, s := range client.SubscriptionList {
+	subMap := make(map[string]byte)
+	for _, s := range clientConfig.SubscriptionList {
 		subMap[s] = 0
 	}
 
 	for range time.NewTicker(time.Second * 10).C {
-		if token := c.Connect(); token.Wait() && token.Error() != nil {
+		if token := mqttClient.Connect(); token.Wait() && token.Error() != nil {
 			continue
 		}
-		SubscribeService(c, subMap, deviceDataChan, client.DataFormat)
-
+		SubscribeService(mqttClient, subMap, dataSourceChan, clientConfig.DataFormat)
 	}
-
 }
 
 //
@@ -82,12 +86,12 @@ func clientHandler(client *Client, deviceDataChan chan string) {
 //	deviceDataChan <- <-subCallBackChan
 //}
 
-func SubscribeService(c MQTT.Client, subMap map[string]byte, deviceDataChan chan string, dataFormat DataFormat) {
+func SubscribeService(c MQTT.Client, subMap map[string]byte, dataSourceChan chan string, dataFormat DataFormat) {
 	defer c.Disconnect(250)
 
 	//if token := c.SubscribeMultiple(subMap, msgHandl); token.Wait() && token.Error() != nil {
 	//if token := c.SubscribeMultiple(map[string]byte{"modbusData": 0, "modbusData2": 0}, CallbackModifier(deviceDataChan,
-	if token := c.SubscribeMultiple(subMap, CallbackModifier(deviceDataChan, dataFormat))
+	if token := c.SubscribeMultiple(subMap, CallbackModifier(dataSourceChan, dataFormat))
 		token.Wait() && token.Error() != nil {
 
 		fmt.Println(token.Error())
@@ -104,8 +108,8 @@ func SubscribeService(c MQTT.Client, subMap map[string]byte, deviceDataChan chan
 	}
 }
 
-func setDefaultMqttConfig() ClientList {
-	return ClientList{
+func setDefaultMqttConfig() *Clients {
+	return &Clients{
 		[]Client{{
 			IpPort:           "127.0.0.1:1883",
 			SubscriptionList: []string{"#"},
@@ -118,14 +122,15 @@ func setDefaultMqttConfig() ClientList {
 	}
 }
 
-func getMqttConfig(path string) (cfg ClientList, err error) {
+func getMqttConfig(path string) (*Clients, error) {
+	var cfg Clients
 	configFile, err := os.Open(path)
 	if err != nil {
 		fmt.Println(err.Error())
-		return ClientList{}, err
+		return &Clients{}, err
 	}
 	defer configFile.Close()
 	jsonParser := json.NewDecoder(configFile)
 	_ = jsonParser.Decode(&cfg)
-	return cfg, nil
+	return &cfg, nil
 }

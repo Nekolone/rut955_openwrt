@@ -6,28 +6,35 @@ import (
 )
 
 type Config struct {
-
+	WialonServerAddress string `json:"wialon_server_address"`
+	ConnectionType string `json:"connection_type"`
+	DataBufferPath      string `json:"data_buffer_path"`
+	Login               string `json:"login"`
+	Password            string `json:"password"`
 }
 
 func Start(dataChan chan string, conf *Config)  {
 	networkStatus := "start"
 
+	log.Println("wialon cli - start")
+
 	clientConnection, tcpAddr := ConnectToServer(conf, &networkStatus)
 	go ReconnectingService(conf, &tcpAddr, &clientConnection, &networkStatus)
 	DataWorker(conf, &networkStatus, &clientConnection, dataChan)
+
+	log.Println("wialon cli - end")
 }
 
-func ConnectToServer(conf *Config, networkStatus *string) (
-	*net.TCPConn, *net.TCPAddr) {
+func ConnectToServer(conf *Config, networkStatus *string) (*net.TCPConn, *net.TCPAddr) {
 
-	log.Printf("connecting to server %v", servAddr)
+	log.Printf("wialon cli - connecting to server %v", conf.WialonServerAddress)
 
-	tcpAddr, err := net.ResolveTCPAddr(network, servAddr)
+	tcpAddr, err := net.ResolveTCPAddr(conf.ConnectionType, conf.WialonServerAddress)
 	if err != nil {
 		log.Fatal("Client creation error")
 	}
 
-	clientConnection, err := net.DialTCP(network, nil, tcpAddr)
+	clientConnection, err := net.DialTCP(conf.ConnectionType, nil, tcpAddr)
 	if err != nil {
 		log.Println("Dial failed:", err.Error())
 		*networkStatus = "buffering"
@@ -35,7 +42,10 @@ func ConnectToServer(conf *Config, networkStatus *string) (
 		return clientConnection, tcpAddr
 	}
 
-	res := login(&clientConnection, id, pass)
+
+	log.Println("wialon cli - login")
+
+	res := login(&clientConnection, conf.Login, conf.Password)
 	if res != "" {
 		log.Printf("login error: %s\n", res)
 		clientConnection.Close()
@@ -57,12 +67,12 @@ func DataWorker(conf *Config, networkStatus *string, clientConnection **net.TCPC
 		data := <-dataChan
 		switch *networkStatus {
 		case "online":
-			sendData(data, *clientConnection, networkStatus, bufferPath)
+			sendData(data, *clientConnection, networkStatus, conf.DataBufferPath)
 		case "buffering":
-			saveToBuffer(data, bufferPath)
+			saveToBuffer(data, conf.DataBufferPath)
 		case "postBuffering":
-			sendBufferData(*clientConnection, networkStatus, bufferPath)
-			sendData(data, *clientConnection, networkStatus, bufferPath)
+			sendBufferData(*clientConnection, networkStatus, conf.DataBufferPath)
+			sendData(data, *clientConnection, networkStatus, conf.DataBufferPath)
 		case "stop":
 			log.Println("client service stop")
 			return
@@ -70,7 +80,7 @@ func DataWorker(conf *Config, networkStatus *string, clientConnection **net.TCPC
 			log.Println("client service restart")
 			return
 		default:
-			saveToBuffer(data, bufferPath)
+			saveToBuffer(data, conf.DataBufferPath)
 		}
 	}
 }

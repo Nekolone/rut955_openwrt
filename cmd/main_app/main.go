@@ -27,11 +27,14 @@ func main() {
 }
 
 func launch(path string) (err error) {
+	log.Println("enter launch")
 
 	dataChan := make(chan string, 50)
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
+
+	log.Println("launch - get cfgs")
 
 	var rutConfigPaths *RutPathsConfig
 	rutConfigPaths, err = getRutConfigPaths(path)
@@ -41,37 +44,38 @@ func launch(path string) (err error) {
 	}
 	wialonClientConfig, dataPSConfig, dataPSModulesConfig := getRutConfig(rutConfigPaths)
 
+	log.Println("launch - start routines")
+
 	go func(wgp *sync.WaitGroup) {
 		defer wgp.Done()
 		if err = startWialonClient(dataChan, wialonClientConfig); err != nil {
-			log.Fatal("client routine error")
+			log.Fatal("wialon client routine error")
 		}
-		log.Println("client stopped")
+		log.Println("wialon client stopped")
 	}(&wg)
 
 	go func(wgp *sync.WaitGroup) {
 		defer wgp.Done()
 		if err = startDataProcessingService(dataChan, dataPSConfig, dataPSModulesConfig); err != nil {
-			log.Fatal("server routine error")
+			log.Fatal("data processing routine error")
 		}
-		log.Println("server stopped")
+		log.Println("dps stopped")
 	}(&wg)
 
 	wg.Wait()
-
+	log.Println("launch - routines end")
 	return nil
 }
 
-func startDataProcessingService(
-	dataChan chan string,
-	dataPSConfig *dataProcessingService.Config,
-	dataPSModulesConfig *dataProcessingService.ModulesConfig,
-) error {
+func startDataProcessingService(dataChan chan string, dataPSConfig *dataProcessingService.Config,
+	dataPSModulesConfig *dataProcessingService.ModulesConfig) error {
+
 	dataProcessingService.Start(dataChan, dataPSConfig, dataPSModulesConfig)
 	return nil
 }
 
 func startWialonClient(dataChan chan string, wialonConfig *wialonClient.Config) error {
+
 	wialonClient.Start(dataChan, wialonConfig)
 	return nil
 }
@@ -136,13 +140,17 @@ func getWialonConfig(path string) (*wialonClient.Config, error) {
 
 func setDefaultDPSModulesConfig() *dataProcessingService.ModulesConfig {
 	return &dataProcessingService.ModulesConfig{
-
+		Modules: []dataProcessingService.Module{{
+			Name: "mqtt",
+			ModuleConfigPath: "module_mqtt_config.json",
+		}},
 	}
 }
 
 func setDefaultDataProcessingServiceConfig() *dataProcessingService.Config {
 	return &dataProcessingService.Config{
-
+		DataSourceChannelSize: 1000,
+		TickerTime: 10,
 	}
 }
 

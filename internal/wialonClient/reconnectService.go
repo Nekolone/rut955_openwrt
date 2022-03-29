@@ -15,12 +15,12 @@ func ReconnectingService(conf *Config, tcpAddr **net.TCPAddr, clientConnection *
 			continue
 		}
 		log.Println("reconnecting")
-		*clientConnection, err = net.DialTCP(network, nil, *tcpAddr)
+		*clientConnection, err = net.DialTCP(conf.ConnectionType, nil, *tcpAddr)
 		if err != nil {
 			log.Println("Reconnecting failed: ", err.Error())
 			continue
 		}
-		res := login(clientConnection, id, pass)
+		res := login(clientConnection, conf.Login, conf.Password)
 		if res != "" {
 			log.Println("login error")
 			(*clientConnection).Close()
