@@ -6,6 +6,7 @@ import (
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -49,19 +50,31 @@ func getValueFromJson(dataFormat DataFormat, payload []byte) string {
 	jsonMap := make(map[string]json.RawMessage)
 	err := json.Unmarshal(payload, &jsonMap)
 	if err != nil {
-		return ""
+		return "NA"
 	}
 	payloadMap := make(map[string]string)
 	for k, message := range jsonMap {
-		payloadMap[k] = string(message)
+		payloadMap[k] = strings.Replace(strings.Replace(strings.Replace(string(message), "\"", "", -1), "[", "", -1), "]", "", -1)
 	}
-	return fmt.Sprintf("%s:%s:%s", payloadMap[dataFormat.DataNameField], payloadMap[dataFormat.DataTypeField],
-		payloadMap[dataFormat.DataValueField])
+	if payloadMap[dataFormat.DataTypeField] == "" {
+		payloadMap[dataFormat.DataTypeField] = "3"
+	}
+
+	return fmt.Sprintf(
+		"%s:%s:%s",
+		payloadMap[dataFormat.DataNameField],
+		payloadMap[dataFormat.DataTypeField],
+		payloadMap[dataFormat.DataValueField],
+	)
 	//return map[string]string{
 	//	"name":  payloadMap[dataFormat.DataNameField],
 	//	"type":  payloadMap[dataFormat.DataTypeField],
 	//	"value": payloadMap[dataFormat.DataValueField],
 	//}
+}
+
+func replace(str, old, new string) string {
+	return strings.Replace(str, old, new, -1)
 }
 
 func clientHandler(clientConfig Client, dataSourceChan chan string) {
