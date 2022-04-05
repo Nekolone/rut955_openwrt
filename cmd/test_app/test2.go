@@ -5,9 +5,13 @@ import "log"
 // your JSON structure as a byte slice
 func main() {
 
-	testV := make(map[string]string)
-	testV["1223"] = "helo1223"
+	var ttt string
 
-	log.Printf("ыыы = %s\n", testV["sss"])
-	log.Printf("1223 = %s\n", testV["1223"])
+	log.Println(ttt)
+	switch 1 {
+	case 1:
+		ttt = "12321"
+
+	}
+	log.Println(ttt)
 }

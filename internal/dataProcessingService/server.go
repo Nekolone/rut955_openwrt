@@ -2,6 +2,7 @@ package dataProcessingService
 
 import (
 	"log"
+	"rut955_openwrt/internal/modules/custom"
 	"rut955_openwrt/internal/modules/modbus_rut"
 	"rut955_openwrt/internal/modules/mqtt"
 	"time"
@@ -87,6 +88,8 @@ func startModule(module *Module, dataSourceChan chan string) {
 		modbus_rut.Start(dataSourceChan, module.ModuleConfigPath)
 	case "mqtt":
 		mqtt.Start(dataSourceChan, module.ModuleConfigPath)
+	case "custom":
+		custom.Start(dataSourceChan, module.ModuleConfigPath)
 
 	default:
 		log.Printf("module %s not found", module.Name)

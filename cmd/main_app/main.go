@@ -156,7 +156,11 @@ func setDefaultDataProcessingServiceConfig() *dataProcessingService.Config {
 
 func setDefaultWialonClientConfig() *wialonClient.Config {
 	return &wialonClient.Config{
-
+		WialonServerAddress: "192.168.100.107:11113",
+		ConnectionType: "tcp",
+		DataBufferPath: "buffer.buf",
+		Login: "",
+		Password: "",
 	}
 }
 

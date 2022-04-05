@@ -9,22 +9,6 @@ import (
 	"time"
 )
 
-//func getOutboundIP() string {
-//	conn, err := net.Dial("udp", "8.8.8.8:80")
-//	if err != nil {
-//		log.Fatal("get ip error", err)
-//	}
-//	defer func(conn net.Conn) {
-//		err = conn.Close()
-//		if err != nil {
-//			log.Println("cant close connection")
-//		}
-//	}(conn)
-//
-//	localAddr := conn.LocalAddr().(*net.UDPAddr)
-//
-//	return localAddr.IP.String()
-//}
 
 func getDeviceData(dataSourceChan chan string) [][]string {
 	var dataList []string
