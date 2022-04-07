@@ -1,7 +1,7 @@
 {
   "wialon_server_address": "192.168.100.107:11113",
   "connection_type": "tcp",
-  "data_buffer_path": "buffer.buf",
+  "data_buffer_path": "/overlay/wialon_rut955_gateway/buffer.buf",
   "login": "admin",
   "password": "admin"
 }

@@ -5,13 +5,12 @@ import (
 	"log"
 	"net"
 	"os"
-	"os/exec"
 )
 
 func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, bufferPath string) {
 	log.Println("send buffered data")
 
-	fileHanler, err := os.OpenFile("buffer.buf", os.O_RDONLY, os.ModePerm)
+	fileHanler, err := os.OpenFile(bufferPath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		log.Println("cant read buffer file")
 		*networkStatus = "online"
@@ -19,7 +18,7 @@ func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, buffer
 		return
 	}
 
-	newBufferPath := "newBuffer.buf"
+	newBufferPath := "/overlay/wialon_rut955_gateway/newBuffer.buf"
 	defer deleteOldBuffer(newBufferPath, bufferPath)
 	defer fileHanler.Close()
 
@@ -67,7 +66,6 @@ func saveToBuffer(data string, bufferPath string) {
 			log.Println("create error", err)
 			os.Exit(1)
 		}
-		exec.Command("chmod +x " + bufferPath)
 	}
 	defer fileHandler.Close()
 	fileHandler.WriteString(data + "\n")

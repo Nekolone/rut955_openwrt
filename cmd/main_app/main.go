@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"rut955_openwrt/internal/wialonClient"
 	"rut955_openwrt/internal/dataProcessingService"
+	"rut955_openwrt/internal/wialonClient"
 	"sync"
 )
 
@@ -17,7 +17,7 @@ type RutPathsConfig struct {
 }
 
 func main() {
-	configPath := "rut_gateway_config_paths.json"
+	configPath := "/overlay/wialon_rut955_gateway/rut_gateway_config_paths.json"
 	err := launch(configPath)
 	if err != nil {
 		log.Fatal("launch error")
@@ -142,7 +142,7 @@ func setDefaultDPSModulesConfig() *dataProcessingService.ModulesConfig {
 	return &dataProcessingService.ModulesConfig{
 		Modules: []dataProcessingService.Module{{
 			Name:             "mqtt",
-			ModuleConfigPath: "module_mqtt_config.json",
+			ModuleConfigPath: "/overlay/wialon_rut955_gateway/module_mqtt_config.json",
 		}},
 	}
 }
@@ -158,7 +158,7 @@ func setDefaultWialonClientConfig() *wialonClient.Config {
 	return &wialonClient.Config{
 		WialonServerAddress: "192.168.100.107:11113",
 		ConnectionType:      "tcp",
-		DataBufferPath:      "buffer.buf",
+		DataBufferPath:      "/overlay/wialon_rut955_gateway/buffer.buf",
 		Login:               "",
 		Password:            "",
 	}
@@ -166,9 +166,9 @@ func setDefaultWialonClientConfig() *wialonClient.Config {
 
 func setDefaultRutGatewayConfig() *RutPathsConfig {
 	return &RutPathsConfig{
-		WialonClientConfigPath:          "rut_wialon_client_config.json",
-		DataProcessingServiceConfigPath: "rut_data_processing_service_config.json",
-		ModulesConfigPath:               "rut_modules_config.json",
+		WialonClientConfigPath:          "/overlay/wialon_rut955_gateway/rut_wialon_client_config.json",
+		DataProcessingServiceConfigPath: "/overlay/wialon_rut955_gateway/rut_data_processing_service_config.json",
+		ModulesConfigPath:               "/overlay/wialon_rut955_gateway/rut_modules_config.json",
 	}
 }
 

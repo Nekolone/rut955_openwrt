@@ -1,5 +1,5 @@
 {
-  "wialon_client_config_path": "rut_wialon_client_config.json",
-  "data_processing_service_config_path": "rut_data_processing_service_config.json",
-  "modules_config_path": "rut_modules_config.json"
+  "wialon_client_config_path": "/overlay/wialon_rut955_gateway/rut_wialon_client_config.json",
+  "data_processing_service_config_path": "/overlay/wialon_rut955_gateway/rut_data_processing_service_config.json",
+  "modules_config_path": "/overlay/wialon_rut955_gateway/rut_modules_config.json"
 }

@@ -2,7 +2,7 @@
   "modules": [
     {
       "name": "mqtt",
-      "module_config_path": "module_mqtt_config.json"
+      "module_config_path": "/overlay/wialon_rut955_gateway/module_mqtt_config.json"
     }
   ]
 }
