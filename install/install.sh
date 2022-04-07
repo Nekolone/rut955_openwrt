@@ -1,5 +1,16 @@
 #!/bin/sh
 
+wget https://github.com/Nekolone/rut955_openwrt/raw/main/install/main_app
+wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/module_custom_config.json
+wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/module_mqtt_config.json
+wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_data_processing_service_config.json
+wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_gateway_config_paths.json
+wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_modules_config.json
+wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_wialon_client_config.json
+wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_wialon_gateway
+wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_wialon_gateway.sh
+
+
 chmod +x rut_wialon_gateway
 mv rut_wialon_gateway /etc/init.d/rut_wialon_gateway
 service rut_wialon_gateway enable
