@@ -9,22 +9,19 @@ import (
 	"time"
 )
 
-
 func getDeviceData(dataSourceChan chan string) [][]string {
 	var dataList []string
 	dataSet := set.New(set.ThreadSafe)
 	for {
 		select {
 		case data := <-dataSourceChan:
-			dataList = strings.Split(data,",")
-			for _, s := range dataList {
-				dataSet.Add(s)
-			}
+			dataSet.Add(data)
+
 
 		default:
 			dataList = nil
 			for _, data := range dataSet.List() {
-				dataList = append(dataList, fmt.Sprintf("%v",data))
+				dataList = append(dataList, fmt.Sprintf("%v", data))
 			}
 			return makeSlices(100, dataList)
 		}
@@ -60,7 +57,7 @@ func getHdop() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA"
 	}
-	
+
 	strOut := strings.Replace(string(out), "\n", "", -1)
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.3f", fltOut)

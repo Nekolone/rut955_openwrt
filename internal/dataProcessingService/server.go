@@ -30,14 +30,6 @@ type ModulesConfig struct {
 func Start(dataChan chan string, config *Config, modulesConfig *ModulesConfig) {
 	log.Println("Data Processing Service start")
 
-	//config, err := getServerConfig("data_server_config.json")
-	//if err != nil {
-	//	config = serverConfig{
-	//		MqttConfig:   "mqtt_config.json",
-	//		ModbusConfig: "modbus_tcp_config.json",
-	//	}
-	//}
-
 	dataSourceChan := make(chan string, config.DataSourceChannelSize)
 
 	modulesConfig.connectDataSourceModules(dataSourceChan)
@@ -47,22 +39,6 @@ func Start(dataChan chan string, config *Config, modulesConfig *ModulesConfig) {
 	}
 }
 
-//func getServerConfig(path string) (config serverConfig, err error) {
-//	var configFile *os.File
-//	configFile, err = os.Open(path)
-//	if err != nil {
-//		log.Fatalf("cant open %s, err %v\n", path, err.Error())
-//		return
-//	}
-//	defer configFile.Close()
-//	err = json.NewDecoder(configFile).Decode(&config)
-//	if err != nil {
-//		log.Fatalf("cant decode %s, err %v\n", path, err.Error())
-//		return
-//	}
-//	return
-//}
-
 func sendToDataChan(dataChan chan string, dataSourceChan chan string) {
 	paramsList := getDeviceData(dataSourceChan)
 	var attr = []string{
@@ -71,8 +47,21 @@ func sendToDataChan(dataChan chan string, dataSourceChan chan string) {
 	}
 	dataType := "D"
 	for _, params := range paramsList {
+		params = remove(params, "")
+		if len(params) == 0 {
+			params = []string{"NA"}
+		}
 		dataChan <- convertDataToSend(dataType, attr, params)
 	}
+}
+
+func remove(s []string, r string) []string {
+	for i, v := range s {
+		if v == r {
+			return remove(append(s[:i], s[i+1:]...), r)
+		}
+	}
+	return s
 }
 
 func (config *ModulesConfig) connectDataSourceModules(dataSourceChan chan string) {

@@ -33,9 +33,9 @@ func customHandler(module List, dataSourceChan chan string) {
 	var address string
 	switch module.Mode {
 	case "auto":
-		address = fmt.Sprintf("%v:%s",getOutboundIP(),module.Port)
+		address = fmt.Sprintf("%v:%s", getOutboundIP(), module.Port)
 	case "manual":
-		address = fmt.Sprintf("%v:%s",module.IP,module.Port)
+		address = fmt.Sprintf("%v:%s", module.IP, module.Port)
 	}
 	serverConnection, err := net.Listen("tcp", address)
 	if err != nil {
@@ -67,8 +67,8 @@ func setDefaultCustomConfig() *Custom {
 	return &Custom{
 		List: []List{
 			{
-				Mode:   "auto",
-				IP: "none",
+				Mode: "auto",
+				IP:   "none",
 				Port: "32211",
 			},
 		},

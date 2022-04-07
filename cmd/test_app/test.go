@@ -25,7 +25,7 @@ var msgHandl MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 func main() {
 	//create a ClientOptions struct setting the broker address, clientid, turn
 	//off trace output and set the default message handler
-	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.35.72:1883")
+	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.35.72:18883")
 	// opts.SetClientID("go-simple")
 	// opts.SetDefaultPublishHandler(f)
 
@@ -36,7 +36,6 @@ func main() {
 	}
 	c.IsConnected()
 
-
 	//subscribe to the topic /go-mqtt/sample and request messages to be delivered
 	//at a maximum qos of zero, wait for the receipt to confirm the subscription
 	if token := c.Subscribe("modbusData", 0, msgHandl); token.Wait() && token.Error() != nil {
@@ -44,7 +43,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	c.SubscribeMultiple(map[string]byte{"modbusData":0,"modbusData2":0},msgHandl)
+	c.SubscribeMultiple(map[string]byte{"modbusData": 0, "modbusData2": 0}, msgHandl)
 
 	//Publish 5 messages to /go-mqtt/sample at qos 1 and wait for the receipt
 	//from the server after sending each message

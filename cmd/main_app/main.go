@@ -141,7 +141,7 @@ func getWialonConfig(path string) (*wialonClient.Config, error) {
 func setDefaultDPSModulesConfig() *dataProcessingService.ModulesConfig {
 	return &dataProcessingService.ModulesConfig{
 		Modules: []dataProcessingService.Module{{
-			Name: "mqtt",
+			Name:             "mqtt",
 			ModuleConfigPath: "module_mqtt_config.json",
 		}},
 	}
@@ -150,17 +150,17 @@ func setDefaultDPSModulesConfig() *dataProcessingService.ModulesConfig {
 func setDefaultDataProcessingServiceConfig() *dataProcessingService.Config {
 	return &dataProcessingService.Config{
 		DataSourceChannelSize: 1000,
-		TickerTime: 10,
+		TickerTime:            10,
 	}
 }
 
 func setDefaultWialonClientConfig() *wialonClient.Config {
 	return &wialonClient.Config{
 		WialonServerAddress: "192.168.100.107:11113",
-		ConnectionType: "tcp",
-		DataBufferPath: "buffer.buf",
-		Login: "",
-		Password: "",
+		ConnectionType:      "tcp",
+		DataBufferPath:      "buffer.buf",
+		Login:               "",
+		Password:            "",
 	}
 }
 

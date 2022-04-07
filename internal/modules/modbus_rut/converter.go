@@ -23,7 +23,7 @@ func modbusConvertService(byteArray []byte, registerMap []param) (result string)
 }
 
 func addToResult(s *string, data string) {
-	if len(*s) == 0{
+	if len(*s) == 0 {
 		*s = data
 		return
 	}
@@ -38,7 +38,6 @@ func getData(p param, array []byte) (string, []byte) {
 	res := convertByteByMap(p, array[:p.ByteSize])
 	return fmt.Sprintf("%s:%d:%s", p.ParamId, res.dataType, res.dataValue), array[p.ByteSize:]
 }
-
 
 func convertByteByMap(p param, array []byte) DataFromBytes {
 	switch p.DataType {

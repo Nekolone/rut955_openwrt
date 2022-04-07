@@ -7,13 +7,13 @@ import (
 
 type Config struct {
 	WialonServerAddress string `json:"wialon_server_address"`
-	ConnectionType string `json:"connection_type"`
+	ConnectionType      string `json:"connection_type"`
 	DataBufferPath      string `json:"data_buffer_path"`
 	Login               string `json:"login"`
 	Password            string `json:"password"`
 }
 
-func Start(dataChan chan string, conf *Config)  {
+func Start(dataChan chan string, conf *Config) {
 	networkStatus := "start"
 
 	log.Println("wialon cli - start")
@@ -41,7 +41,6 @@ func ConnectToServer(conf *Config, networkStatus *string) (*net.TCPConn, *net.TC
 		log.Println("networkStatus -> buffering")
 		return clientConnection, tcpAddr
 	}
-
 
 	log.Println("wialon cli - login")
 

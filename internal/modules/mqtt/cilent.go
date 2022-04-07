@@ -50,11 +50,11 @@ func getValueFromJson(dataFormat DataFormat, payload []byte) string {
 	jsonMap := make(map[string]json.RawMessage)
 	err := json.Unmarshal(payload, &jsonMap)
 	if err != nil {
-		return "NA"
+		return ""
 	}
 	payloadMap := make(map[string]string)
 	for k, message := range jsonMap {
-		payloadMap[k] = strings.Replace(strings.Replace(strings.Replace(string(message), "\"", "", -1), "[", "", -1), "]", "", -1)
+		payloadMap[k] = string(message)
 	}
 	if payloadMap[dataFormat.DataTypeField] == "" {
 		payloadMap[dataFormat.DataTypeField] = "3"
@@ -62,8 +62,8 @@ func getValueFromJson(dataFormat DataFormat, payload []byte) string {
 
 	return fmt.Sprintf(
 		"%s:%s:%s",
-		payloadMap[dataFormat.DataNameField],
-		payloadMap[dataFormat.DataTypeField],
+		strings.Replace(payloadMap[dataFormat.DataNameField], "\"", "", -1),
+		strings.Replace(payloadMap[dataFormat.DataTypeField], "\"", "", -1),
 		payloadMap[dataFormat.DataValueField],
 	)
 	//return map[string]string{
@@ -104,8 +104,7 @@ func SubscribeService(c MQTT.Client, subMap map[string]byte, dataSourceChan chan
 
 	//if token := c.SubscribeMultiple(subMap, msgHandl); token.Wait() && token.Error() != nil {
 	//if token := c.SubscribeMultiple(map[string]byte{"modbusData": 0, "modbusData2": 0}, CallbackModifier(deviceDataChan,
-	if token := c.SubscribeMultiple(subMap, CallbackModifier(dataSourceChan, dataFormat))
-		token.Wait() && token.Error() != nil {
+	if token := c.SubscribeMultiple(subMap, CallbackModifier(dataSourceChan, dataFormat)); token.Wait() && token.Error() != nil {
 
 		fmt.Println(token.Error())
 		return

@@ -23,19 +23,20 @@ type ModbusDevice struct {
 }
 
 type Request struct {
-	SlaveId         byte    `json:"slaveId"`
-	Function        int     `json:"function"`
-	StartAddress    uint16  `json:"startAddress"`
-	Quantity        uint16  `json:"quantity"`
-	RegisterMap     []param `json:"params"`
+	SlaveId      byte    `json:"slaveId"`
+	Function     int     `json:"function"`
+	StartAddress uint16  `json:"startAddress"`
+	Quantity     uint16  `json:"quantity"`
+	RegisterMap  []param `json:"params"`
 }
 
 type param struct {
-	ParamId  string `json:"paramId"`
-	ByteSize uint16 `json:"byteSize"`
-	DataType string `json:"dataType"`
-	ByteOrder []int `json:"byteOrder"`
+	ParamId   string `json:"paramId"`
+	ByteSize  uint16 `json:"byteSize"`
+	DataType  string `json:"dataType"`
+	ByteOrder []int  `json:"byteOrder"`
 }
+
 //
 //func Test() {
 //
@@ -106,7 +107,7 @@ func RequestsService(requests []Request, deviceDataChan chan string, handler *mo
 	defer handler.Close()
 	var client modbus.Client
 	var results []byte
-	recTimer := time.NewTicker(time.Second*10)
+	recTimer := time.NewTicker(time.Second * 10)
 	for range recTimer.C {
 		for _, request := range requests {
 			handler.SlaveId = request.SlaveId
