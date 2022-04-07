@@ -25,6 +25,7 @@ mv ./rut_gateway_config_paths.json /overlay/wialon_rut955_gateway/rut_gateway_co
 mv ./rut_modules_config.json /overlay/wialon_rut955_gateway/rut_modules_config.json
 mv ./rut_wialon_client_config.json /overlay/wialon_rut955_gateway/rut_wialon_client_config.json
 
+chmod +x rut_wialon_gateway.sh
 mv ./rut_wialon_gateway.sh /overlay/wialon_rut955_gateway/rut_wialon_gateway.sh
 
 mv ./curr_version /overlay/wialon_rut955_gateway/curr_version
