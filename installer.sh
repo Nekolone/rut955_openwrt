@@ -1,0 +1,1 @@
+mkdir /overlay/install && mkdir /overlay/wialon_rut955_gateway && cd /overlay/install && wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/install.sh && chmod +x install.sh && ./install.sh

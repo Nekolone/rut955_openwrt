@@ -2,7 +2,7 @@
 
 installer
 ```shell
-mkdir /overlay/install && mkdir /overlay/wialon_rut955_gateway && cd /overlay/install && wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/install.sh && chmod +x install.sh && ./install.sh
+wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/installer.sh && chmod +x installer.sh && ./installer.sh
 service rut_wialon_gateway enable
 service rut_wialon_gateway start
 ```
