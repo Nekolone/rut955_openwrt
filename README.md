@@ -2,10 +2,9 @@
 
 installer
 ```shell
-wget https://github.com/Nekolone/rut955_openwrt/archive/master.tar.gz && tar -xf master.tar.gz && mv rut955_openwrt-main/install install && rm -rf master.tar.gz rut955_openwrt-main
-```
-```shell
 mkdir /overlay/install && mkdir /overlay/wialon_rut955_gateway && cd /overlay/install && wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/install.sh && chmod +x install.sh && ./install.sh
+service rut_wialon_gateway enable
+service rut_wialon_gateway start
 ```
 
 get gps data

@@ -28,11 +28,3 @@ mv ./rut_wialon_client_config.json /overlay/wialon_rut955_gateway/rut_wialon_cli
 mv ./rut_wialon_gateway.sh /overlay/wialon_rut955_gateway/rut_wialon_gateway.sh
 
 mv ./curr_version /overlay/wialon_rut955_gateway/curr_version
-
-sleep 20s
-
-service rut_wialon_gateway enable
-service rut_wialon_gateway start
-
-cd /overlay
-rm -rf install
