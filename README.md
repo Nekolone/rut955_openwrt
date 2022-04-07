@@ -1,5 +1,11 @@
 # rut955_openwrt
 
+installer
+```shell
+wget https://github.com/Nekolone/rut955_openwrt/archive/master.tar.gz && tar -xf master.tar.gz && mv rut955_openwrt-main/install install && rm -rf master.tar.gz rut955_openwrt-main
+```
+
+
 get gps data
 ```shell
 cat /dev/ttyUSB2
