@@ -14,7 +14,7 @@ do
     fi
 
     UPD_VER=$(cat last_version)
-    CUR_VER=$(cat curr_version)
+    CUR_VER=$(cat /overlay/wialon_rut955_gateway/curr_version)
 
     if [[ $UPD_VER == $CUR_VER ]]; then
         continue
@@ -27,7 +27,9 @@ do
         continue
     fi
 
-    mv main_app rut_wialon_gateway_app
-    chmod +x rut_wialon_gateway_app
+    mv last_version /overlay/wialon_rut955_gateway/curr_version
+
+    chmod +x main_app
+    mv main_app /overlay/wialon_rut955_gateway/rut_wialon_gateway_app
     /overlay/wialon_rut955_gateway/rut_wialon_gateway_app &
 done
