@@ -14,6 +14,7 @@ type RutPathsConfig struct {
 	WialonClientConfigPath          string `json:"wialon_client_config_path"`
 	DataProcessingServiceConfigPath string `json:"data_processing_service_config_path"`
 	ModulesConfigPath               string `json:"modules_config_path"`
+	LogFilePath                     string `json:log_file_path`
 }
 
 func main() {
@@ -44,23 +45,30 @@ func launch(path string) (err error) {
 	}
 	wialonClientConfig, dataPSConfig, dataPSModulesConfig := getRutConfig(rutConfigPaths)
 
+	logFile, err := os.OpenFile(rutConfigPaths.LogFilePath, os.O_APPEND|os.O_RDWR|os.O_CREATE, 0644)
+	if err != nil {
+		log.Printf("cant open log file. ERR > %v", err)
+	}
+	log.SetOutput(logFile)
+	log.SetFlags(log.Lshortfile | log.LstdFlags)
+
 	log.Println("launch - start routines")
 
-	go func(wgp *sync.WaitGroup) {
-		defer wgp.Done()
+	go func() {
+		defer wg.Done()
 		if err = startWialonClient(dataChan, wialonClientConfig); err != nil {
 			log.Fatal("wialon client routine error")
 		}
 		log.Println("wialon client stopped")
-	}(&wg)
+	}()
 
-	go func(wgp *sync.WaitGroup) {
-		defer wgp.Done()
+	go func() {
+		defer wg.Done()
 		if err = startDataProcessingService(dataChan, dataPSConfig, dataPSModulesConfig); err != nil {
 			log.Fatal("data processing routine error")
 		}
 		log.Println("dps stopped")
-	}(&wg)
+	}()
 
 	wg.Wait()
 	log.Println("launch - routines end")
@@ -169,6 +177,7 @@ func setDefaultRutGatewayConfig() *RutPathsConfig {
 		WialonClientConfigPath:          "/overlay/wialon_rut955_gateway/rut_wialon_client_config.json",
 		DataProcessingServiceConfigPath: "/overlay/wialon_rut955_gateway/rut_data_processing_service_config.json",
 		ModulesConfigPath:               "/overlay/wialon_rut955_gateway/rut_modules_config.json",
+		LogFilePath:                     "/overlay/wialon_rut955_gateway/main_app_log.log",
 	}
 }
 
