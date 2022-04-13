@@ -1,0 +1,8 @@
+{
+  "modules": [
+    {
+      "name": "mqtt",
+      "module_config_path": "/overlay/rut_wialon_gateway/MODULE_MQTT.json"
+    }
+  ]
+}

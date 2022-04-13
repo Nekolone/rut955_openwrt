@@ -1,0 +1,7 @@
+{
+  "wialon_server_address": "10.0.0.2:11114",
+  "connection_type": "tcp",
+  "data_buffer_path": "/tmp/RWG_app_buffer/buffer.buf",
+  "login": "test",
+  "password": "admin"
+}

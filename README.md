@@ -2,9 +2,9 @@
 
 installer
 ```shell
-wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/installer.sh && chmod +x installer.sh && ./installer.sh
-service rut_wialon_gateway enable
-service rut_wialon_gateway start
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/installer.sh && chmod +x installer.sh && ./installer.sh
+service r_w_g_service_controller enable
+service r_w_g_service_controller start
 rm -rf installer.sh /overlay/install
 ```
 

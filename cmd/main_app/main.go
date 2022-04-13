@@ -14,11 +14,11 @@ type RutPathsConfig struct {
 	WialonClientConfigPath          string `json:"wialon_client_config_path"`
 	DataProcessingServiceConfigPath string `json:"data_processing_service_config_path"`
 	ModulesConfigPath               string `json:"modules_config_path"`
-	LogFilePath                     string `json:log_file_path`
+	LogFilePath                     string `json:"log_file_path"`
 }
 
 func main() {
-	configPath := "/overlay/wialon_rut955_gateway/rut_gateway_config_paths.json"
+	configPath := "/overlay/wialon_rut955_gateway/APP_PATHS.json"
 	err := launch(configPath)
 	if err != nil {
 		log.Fatal("launch error")
@@ -150,7 +150,7 @@ func setDefaultDPSModulesConfig() *dataProcessingService.ModulesConfig {
 	return &dataProcessingService.ModulesConfig{
 		Modules: []dataProcessingService.Module{{
 			Name:             "mqtt",
-			ModuleConfigPath: "/overlay/wialon_rut955_gateway/module_mqtt_config.json",
+			ModuleConfigPath: "/overlay/wialon_rut955_gateway/MODULE_MQTT.json",
 		}},
 	}
 }
@@ -174,9 +174,9 @@ func setDefaultWialonClientConfig() *wialonClient.Config {
 
 func setDefaultRutGatewayConfig() *RutPathsConfig {
 	return &RutPathsConfig{
-		WialonClientConfigPath:          "/overlay/wialon_rut955_gateway/rut_wialon_client_config.json",
-		DataProcessingServiceConfigPath: "/overlay/wialon_rut955_gateway/rut_data_processing_service_config.json",
-		ModulesConfigPath:               "/overlay/wialon_rut955_gateway/rut_modules_config.json",
+		WialonClientConfigPath:          "/overlay/wialon_rut955_gateway/CFG_wilaon_client.json",
+		DataProcessingServiceConfigPath: "/overlay/wialon_rut955_gateway/CFG_data_processing_service.json",
+		ModulesConfigPath:               "/overlay/wialon_rut955_gateway/MODULES_LIST.json",
 		LogFilePath:                     "/overlay/wialon_rut955_gateway/main_app_log.log",
 	}
 }
