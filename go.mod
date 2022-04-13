@@ -1,4 +1,4 @@
-module rut955_openwrt
+module rut_wialon_gateway
 
 go 1.17
 

@@ -2,9 +2,9 @@ package dataProcessingService
 
 import (
 	"log"
-	"rut955_openwrt/internal/modules/custom"
-	"rut955_openwrt/internal/modules/modbus_rut"
-	"rut955_openwrt/internal/modules/mqtt"
+	"rut_wialon_gateway/internal/modules/custom"
+	"rut_wialon_gateway/internal/modules/modbus_rut"
+	"rut_wialon_gateway/internal/modules/mqtt"
 	"time"
 )
 

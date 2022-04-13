@@ -123,7 +123,7 @@ func SubscribeService(c MQTT.Client, subMap map[string]byte, dataSourceChan chan
 func setDefaultMqttConfig() *Clients {
 	return &Clients{
 		[]Client{{
-			IpPort:           "127.0.0.1:1883",
+			IpPort:           "127.0.0.1:18883",
 			SubscriptionList: []string{"#"},
 			DataFormat: DataFormat{
 				DataNameField:  "name",

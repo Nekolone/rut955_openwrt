@@ -18,7 +18,7 @@ func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, buffer
 		return
 	}
 
-	newBufferPath := "/overlay/wialon_rut955_gateway/newBuffer.buf"
+	newBufferPath := "/tmp/RWG_app_buffer/newBuffer.buf"
 	defer deleteOldBuffer(newBufferPath, bufferPath)
 	defer fileHanler.Close()
 

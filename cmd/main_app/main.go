@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"rut955_openwrt/internal/dataProcessingService"
-	"rut955_openwrt/internal/wialonClient"
+	"rut_wialon_gateway/internal/dataProcessingService"
+	"rut_wialon_gateway/internal/wialonClient"
 	"sync"
 )
 
@@ -18,7 +18,7 @@ type RutPathsConfig struct {
 }
 
 func main() {
-	configPath := "/overlay/wialon_rut955_gateway/APP_PATHS.json"
+	configPath := "/overlay/rut_wialon_gateway/APP_PATHS.json"
 	err := launch(configPath)
 	if err != nil {
 		log.Fatal("launch error")
@@ -150,7 +150,7 @@ func setDefaultDPSModulesConfig() *dataProcessingService.ModulesConfig {
 	return &dataProcessingService.ModulesConfig{
 		Modules: []dataProcessingService.Module{{
 			Name:             "mqtt",
-			ModuleConfigPath: "/overlay/wialon_rut955_gateway/MODULE_MQTT.json",
+			ModuleConfigPath: "/overlay/rut_wialon_gateway/MODULE_MQTT.json",
 		}},
 	}
 }
@@ -164,20 +164,20 @@ func setDefaultDataProcessingServiceConfig() *dataProcessingService.Config {
 
 func setDefaultWialonClientConfig() *wialonClient.Config {
 	return &wialonClient.Config{
-		WialonServerAddress: "192.168.100.107:11113",
+		WialonServerAddress: "10.0.0.2:11114",
 		ConnectionType:      "tcp",
-		DataBufferPath:      "/overlay/wialon_rut955_gateway/buffer.buf",
-		Login:               "",
+		DataBufferPath:      "/tmp/RWG_app_buffer/buffer.buf",
+		Login:               "111222333444555",
 		Password:            "",
 	}
 }
 
 func setDefaultRutGatewayConfig() *RutPathsConfig {
 	return &RutPathsConfig{
-		WialonClientConfigPath:          "/overlay/wialon_rut955_gateway/CFG_wilaon_client.json",
-		DataProcessingServiceConfigPath: "/overlay/wialon_rut955_gateway/CFG_data_processing_service.json",
-		ModulesConfigPath:               "/overlay/wialon_rut955_gateway/MODULES_LIST.json",
-		LogFilePath:                     "/overlay/wialon_rut955_gateway/main_app_log.log",
+		WialonClientConfigPath:          "/overlay/rut_wialon_gateway/CFG_wilaon_client.json",
+		DataProcessingServiceConfigPath: "/overlay/rut_wialon_gateway/CFG_data_processing_service.json",
+		ModulesConfigPath:               "/overlay/rut_wialon_gateway/MODULES_LIST.json",
+		LogFilePath:                     "/tmp/RWG_app_buffer/log.log",
 	}
 }
 
