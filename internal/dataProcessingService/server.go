@@ -28,7 +28,7 @@ type ModulesConfig struct {
 }
 
 func Start(dataChan chan string, config *Config, modulesConfig *ModulesConfig) {
-	log.Println("Data Processing Service start")
+	log.Print("Data Processing Service start")
 
 	dataSourceChan := make(chan string, config.DataSourceChannelSize)
 
@@ -66,11 +66,16 @@ func remove(s []string, r string) []string {
 
 func (config *ModulesConfig) connectDataSourceModules(dataSourceChan chan string) {
 	for _, module := range config.Modules {
-		startModule(&module, dataSourceChan)
+		startModule(module, dataSourceChan)
 	}
 }
 
-func startModule(module *Module, dataSourceChan chan string) {
+func startModule(module Module, dataSourceChan chan string) {
+	defer func() {
+	    if r := recover(); r != nil {
+	        log.Printf("Recover painc from module. Panic msg > %v", r)
+	    }
+	}()
 	switch module.Name {
 	case "modbus":
 		modbus_rut.Start(dataSourceChan, module.ModuleConfigPath)

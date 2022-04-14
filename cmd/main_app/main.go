@@ -21,7 +21,7 @@ type RutPathsConfig struct {
 func main() {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Printf("critical unexpected panic > %v", r)
+			log.Printf("critical or unexpected panic > %v", r)
 		}
 		log.Print("main program ended. RWG_app_controller should restart.")
 	}()
@@ -99,24 +99,20 @@ func launch(path string) {
 	wg.Wait()
 }
 
-func startDataProcessingService(dataChan chan string, dataPSConfig *dataProcessingService.Config,
-	dataPSModulesConfig *dataProcessingService.ModulesConfig) error {
+func startDataProcessingService(
+	dataChan chan string,
+	dataPSConfig *dataProcessingService.Config,
+	dataPSModulesConfig *dataProcessingService.ModulesConfig,
+) {
 	dataProcessingService.Start(dataChan, dataPSConfig, dataPSModulesConfig)
-	return nil
 }
 
-func startWialonClient(dataChan chan string, wialonConfig *wialonClient.Config) error {
+func startWialonClient(dataChan chan string, wialonConfig *wialonClient.Config) {
 	wialonClient.Start(dataChan, wialonConfig)
-	return nil
 }
 
 func getRutConfigPaths(path string) (cfg *RutPathsConfig) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf("Recover {%v}. Using defaults", r)
-			cfg = setDefaultRutGatewayConfig()
-		}
-	}()
+	cfg = setDefaultRutGatewayConfig()
 	_ = getConfig(path)(&cfg)
 	return
 }
@@ -133,34 +129,19 @@ func getRutConfig(paths *RutPathsConfig) (
 }
 
 func getDPSModulesConfig(path string) (cfg *dataProcessingService.ModulesConfig) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf("Recover {%v}. Using defaults", r)
-			cfg = setDefaultDPSModulesConfig()
-		}
-	}()
+	cfg = setDefaultDPSModulesConfig()
 	_ = getConfig(path)(&cfg)
 	return
 }
 
 func getDPSConfig(path string) (cfg *dataProcessingService.Config) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf("Recover {%v}. Using defaults", r)
-			cfg = setDefaultDataProcessingServiceConfig()
-		}
-	}()
+	cfg = setDefaultDataProcessingServiceConfig()
 	_ = getConfig(path)(&cfg)
 	return
 }
 
 func getWialonConfig(path string) (cfg *wialonClient.Config) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf("Recover {%v}. Using defaults", r)
-			cfg = setDefaultWialonClientConfig()
-		}
-	}()
+	cfg = setDefaultWialonClientConfig()
 	_ = getConfig(path)(&cfg)
 	return
 }
@@ -168,13 +149,12 @@ func getWialonConfig(path string) (cfg *wialonClient.Config) {
 func getConfig(path string) func(v interface{}) error {
 	configFile, err := os.Open(path)
 	if err != nil {
-		log.Panicf("bad config path : %v", path)
+		log.Printf("Using defaults. Bad config path : %v", path)
+		return nil
 	}
 	defer configFile.Close()
-
 	v := json.NewDecoder(configFile)
 	return v.Decode
-
 }
 
 func setDefaultDPSModulesConfig() *dataProcessingService.ModulesConfig {
@@ -185,12 +165,14 @@ func setDefaultDPSModulesConfig() *dataProcessingService.ModulesConfig {
 		}},
 	}
 }
+
 func setDefaultDataProcessingServiceConfig() *dataProcessingService.Config {
 	return &dataProcessingService.Config{
 		DataSourceChannelSize: 1000,
 		TickerTime:            10,
 	}
 }
+
 func setDefaultWialonClientConfig() *wialonClient.Config {
 	return &wialonClient.Config{
 		WialonServerAddress: "10.0.0.2:11114",
@@ -200,6 +182,7 @@ func setDefaultWialonClientConfig() *wialonClient.Config {
 		Password:            "",
 	}
 }
+
 func setDefaultRutGatewayConfig() *RutPathsConfig {
 	return &RutPathsConfig{
 		WialonClientConfigPath:          "/overlay/rut_wialon_gateway/CFG_wialon_client.json",
