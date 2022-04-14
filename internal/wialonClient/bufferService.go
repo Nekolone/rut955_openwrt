@@ -10,7 +10,7 @@ import (
 func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, bufferPath string) {
 	log.Println("send buffered data")
 
-	fileHanler, err := os.OpenFile(bufferPath, os.O_RDONLY, os.ModePerm)
+	fileHandler, err := os.OpenFile(bufferPath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
 		log.Println("cant read buffer file")
 		*networkStatus = "online"
@@ -20,9 +20,9 @@ func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, buffer
 
 	newBufferPath := "/tmp/RWG_app_buffer/newBuffer.buf"
 	defer deleteOldBuffer(newBufferPath, bufferPath)
-	defer fileHanler.Close()
+	defer fileHandler.Close()
 
-	fileScanner := bufio.NewScanner(fileHanler)
+	fileScanner := bufio.NewScanner(fileHandler)
 	var msg string
 	for fileScanner.Scan() {
 		msg = fileScanner.Text()
@@ -45,7 +45,7 @@ func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, buffer
 	}
 
 	if err = fileScanner.Err(); err != nil {
-		log.Fatalf("scan file error: %v", err)
+		log.Panicf("scan file error: %v", err)
 		return
 	}
 
@@ -68,7 +68,7 @@ func saveToBuffer(data string, bufferPath string) {
 		}
 	}
 	defer fileHandler.Close()
-	fileHandler.WriteString(data + "\n")
+	_, _ = fileHandler.WriteString(data + "\n")
 }
 
 func deleteOldBuffer(newBufferPath string, bufferPath string) {

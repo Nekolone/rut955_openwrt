@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-//type serverConfig struct {
+// type serverConfig struct {
 //	MqttConfig   string
 //	ModbusConfig string
 //}
@@ -72,7 +72,6 @@ func (config *ModulesConfig) connectDataSourceModules(dataSourceChan chan string
 
 func startModule(module *Module, dataSourceChan chan string) {
 	switch module.Name {
-
 	case "modbus":
 		modbus_rut.Start(dataSourceChan, module.ModuleConfigPath)
 	case "mqtt":

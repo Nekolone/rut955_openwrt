@@ -26,7 +26,6 @@ func Start(dataChan chan string, conf *Config) {
 }
 
 func ConnectToServer(conf *Config, networkStatus *string) (*net.TCPConn, *net.TCPAddr) {
-
 	log.Printf("wialon cli - connecting to server %v", conf.WialonServerAddress)
 
 	tcpAddr, err := net.ResolveTCPAddr(conf.ConnectionType, conf.WialonServerAddress)
@@ -47,7 +46,7 @@ func ConnectToServer(conf *Config, networkStatus *string) (*net.TCPConn, *net.TC
 	res := login(&clientConnection, conf.Login, conf.Password)
 	if res != "" {
 		log.Printf("login error: %s\n", res)
-		clientConnection.Close()
+		_ = clientConnection.Close()
 		*networkStatus = "buffering"
 		log.Println("networkStatus -> buffering")
 		return clientConnection, tcpAddr
@@ -71,6 +70,9 @@ func DataWorker(conf *Config, networkStatus *string, clientConnection **net.TCPC
 			saveToBuffer(data, conf.DataBufferPath)
 		case "postBuffering":
 			sendBufferData(*clientConnection, networkStatus, conf.DataBufferPath)
+			if r := recover(); r != nil {
+				log.Printf("Recovered in f > %v", r)
+			}
 			sendData(data, *clientConnection, networkStatus, conf.DataBufferPath)
 		case "stop":
 			log.Println("client service stop")

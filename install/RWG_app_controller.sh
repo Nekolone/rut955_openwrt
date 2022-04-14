@@ -1,5 +1,8 @@
 #!/bin/sh
 
+#TODO: сделать запуск если нет процесса RWG_main_app
+
+
 /overlay/rut_wialon_gateway/RWG_main_app &
 /overlay/rut_wialon_gateway/RWG_buff_remover.sh &
 

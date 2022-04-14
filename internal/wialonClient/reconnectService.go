@@ -23,7 +23,7 @@ func ReconnectingService(conf *Config, tcpAddr **net.TCPAddr, clientConnection *
 		res := login(clientConnection, conf.Login, conf.Password)
 		if res != "" {
 			log.Println("login error")
-			(*clientConnection).Close()
+			_ = (*clientConnection).Close()
 			*networkStatus = "buffering"
 			log.Println("networkStatus -> buffering")
 			continue
@@ -31,6 +31,5 @@ func ReconnectingService(conf *Config, tcpAddr **net.TCPAddr, clientConnection *
 		log.Println("reconnect successfully")
 		*networkStatus = "postBuffering"
 		log.Println("networkStatus -> postBuffering")
-
 	}
 }

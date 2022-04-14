@@ -75,7 +75,7 @@ func send(data string, clientConnection *net.TCPConn, networkStatus *string) str
 	timer.Stop()
 
 	log.Println("send error")
-	clientConnection.Close()
+	_ = clientConnection.Close()
 	*networkStatus = "buffering"
 	log.Println("networkStatus -> buffering")
 	return "send error"

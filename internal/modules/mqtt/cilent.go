@@ -15,7 +15,7 @@ type Clients struct {
 }
 
 type Client struct {
-	IpPort           string     `json:"ip_port"`
+	IPPort           string     `json:"ip_port"`
 	SubscriptionList []string   `json:"subscription_list"`
 	DataFormat       DataFormat `json:"data_format"`
 }
@@ -41,12 +41,12 @@ func Start(dataSourceChan chan string, path string) {
 
 func CallbackModifier(dataSourceChan chan string, dataFormat DataFormat) MQTT.MessageHandler {
 	var res MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
-		dataSourceChan <- getValueFromJson(dataFormat, msg.Payload())
+		dataSourceChan <- getValueFromJSON(dataFormat, msg.Payload())
 	}
 	return res
 }
 
-func getValueFromJson(dataFormat DataFormat, payload []byte) string {
+func getValueFromJSON(dataFormat DataFormat, payload []byte) string {
 	jsonMap := make(map[string]json.RawMessage)
 	err := json.Unmarshal(payload, &jsonMap)
 	if err != nil {
@@ -62,23 +62,19 @@ func getValueFromJson(dataFormat DataFormat, payload []byte) string {
 
 	return fmt.Sprintf(
 		"%s:%s:%s",
-		strings.Replace(payloadMap[dataFormat.DataNameField], "\"", "", -1),
-		strings.Replace(payloadMap[dataFormat.DataTypeField], "\"", "", -1),
+		strings.ReplaceAll(payloadMap[dataFormat.DataNameField], "\"", ""),
+		strings.ReplaceAll(payloadMap[dataFormat.DataTypeField], "\"", ""),
 		payloadMap[dataFormat.DataValueField],
 	)
-	//return map[string]string{
+	// return map[string]string{
 	//	"name":  payloadMap[dataFormat.DataNameField],
 	//	"type":  payloadMap[dataFormat.DataTypeField],
 	//	"value": payloadMap[dataFormat.DataValueField],
 	//}
 }
 
-func replace(str, old, new string) string {
-	return strings.Replace(str, old, new, -1)
-}
-
 func clientHandler(clientConfig Client, dataSourceChan chan string) {
-	opts := MQTT.NewClientOptions().AddBroker(fmt.Sprintf("tcp://%s", clientConfig.IpPort))
+	opts := MQTT.NewClientOptions().AddBroker(fmt.Sprintf("tcp://%s", clientConfig.IPPort))
 	mqttClient := MQTT.NewClient(opts)
 
 	subMap := make(map[string]byte)
@@ -95,17 +91,17 @@ func clientHandler(clientConfig Client, dataSourceChan chan string) {
 }
 
 //
-//func convertMqttData(deviceDataChan chan string) {
+// func convertMqttData(deviceDataChan chan string) {
 //	deviceDataChan <- <-subCallBackChan
 //}
 
 func SubscribeService(c MQTT.Client, subMap map[string]byte, dataSourceChan chan string, dataFormat DataFormat) {
 	defer c.Disconnect(250)
 
-	//if token := c.SubscribeMultiple(subMap, msgHandl); token.Wait() && token.Error() != nil {
-	//if token := c.SubscribeMultiple(map[string]byte{"modbusData": 0, "modbusData2": 0}, CallbackModifier(deviceDataChan,
-	if token := c.SubscribeMultiple(subMap, CallbackModifier(dataSourceChan, dataFormat)); token.Wait() && token.Error() != nil {
-
+	// if token := c.SubscribeMultiple(subMap, msgHandl); token.Wait() && token.Error() != nil {
+	// if token := c.SubscribeMultiple(map[string]byte{"modbusData": 0, "modbusData2": 0}, CallbackModifier(deviceDataChan,
+	if token := c.SubscribeMultiple(subMap, CallbackModifier(dataSourceChan, dataFormat)); token.Wait() &&
+		token.Error() != nil {
 		fmt.Println(token.Error())
 		return
 	}
@@ -123,7 +119,7 @@ func SubscribeService(c MQTT.Client, subMap map[string]byte, dataSourceChan chan
 func setDefaultMqttConfig() *Clients {
 	return &Clients{
 		[]Client{{
-			IpPort:           "127.0.0.1:18883",
+			IPPort:           "127.0.0.1:18883",
 			SubscriptionList: []string{"#"},
 			DataFormat: DataFormat{
 				DataNameField:  "name",

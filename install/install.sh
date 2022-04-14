@@ -9,7 +9,7 @@ wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/
 wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/CFG_data_processing_service.json
 wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/APP_PATHS.json
 wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/MODULES_LIST.json
-wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/CFG_wilaon_client.json
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/CFG_wialon_client.json
 wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/r_w_g_service_controller
 wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/RWG_app_controller.sh
 wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/RWG_buff_remover.sh
@@ -20,7 +20,7 @@ mv ./MODULE_MQTT.json /overlay/rut_wialon_gateway/MODULE_MQTT.json
 mv ./CFG_data_processing_service.json /overlay/rut_wialon_gateway/CFG_data_processing_service.json
 mv ./APP_PATHS.json /overlay/rut_wialon_gateway/APP_PATHS.json
 mv ./MODULES_LIST.json /overlay/rut_wialon_gateway/MODULES_LIST.json
-mv ./CFG_wilaon_client.json /overlay/rut_wialon_gateway/CFG_wilaon_client.json
+mv ./CFG_wialon_client.json /overlay/rut_wialon_gateway/CFG_wialon_client.json
 
 chmod +x RWG_main_app
 mv ./RWG_main_app /overlay/rut_wialon_gateway/RWG_main_app

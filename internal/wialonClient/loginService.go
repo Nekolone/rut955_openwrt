@@ -39,7 +39,6 @@ func login(clientConnection **net.TCPConn, id string, pass string) string {
 			switch reactToLoginResponse(res) {
 			case "resend":
 				log.Println("ligin problem")
-				break
 			case "success":
 				log.Println("login successfully")
 				return ""
@@ -50,7 +49,9 @@ func login(clientConnection **net.TCPConn, id string, pass string) string {
 			log.Println("timeout")
 		}
 	}
-	timer.Stop()
+	if timer != nil{
+		timer.Stop()
+	}
 	return "error"
 }
 

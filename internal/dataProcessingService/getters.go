@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+const nodataDouble = "NA;NA"
+
 func getDeviceData(dataSourceChan chan string) [][]string {
 	var dataList []string
 	dataSet := set.New(set.ThreadSafe)
@@ -58,7 +60,7 @@ func getHdop() string {
 		return "NA"
 	}
 
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.3f", fltOut)
 }
@@ -69,7 +71,7 @@ func getSats() string {
 		return "NA"
 	}
 
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	return strOut
 }
 
@@ -83,7 +85,7 @@ func getCourse() string {
 		return "NA"
 	}
 
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.0f", fltOut)
 }
@@ -94,7 +96,7 @@ func getSpeed() string {
 		return "NA"
 	}
 
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.0f", fltOut)
 }
@@ -102,30 +104,29 @@ func getSpeed() string {
 func getLat() string {
 	out, err := exec.Command("gpsctl", "-i").Output()
 	if (err != nil) || (len(out) == 0) {
-		return "NA;NA"
+		return nodataDouble
 	}
 
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	if fltOut == 0 {
-		return "NA;NA"
+		return nodataDouble
 	}
 	if fltOut > 0 {
 		return fmt.Sprintf("%.4f;N", fltOut*100)
 	}
 	return fmt.Sprintf("%.4f;S", fltOut*-100)
-
 }
 
 func getLon() string {
 	out, err := exec.Command("gpsctl", "-x").Output()
 	if (err != nil) || (len(out) == 0) {
-		return "NA;NA"
+		return nodataDouble
 	}
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	if fltOut == 0 {
-		return "NA;NA"
+		return nodataDouble
 	}
 	if fltOut > 0 {
 		return fmt.Sprintf("0%.4f;E", fltOut*100)
