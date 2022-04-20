@@ -18,11 +18,10 @@ type List struct {
 }
 
 func Start(dataSourceChan chan string, path string) {
-	customConfig, err := getMqttConfig(path)
-	if err != nil {
-		log.Println("mqtt config path error, default config for local mqtt broker")
-		customConfig = setDefaultCustomConfig()
-	}
+	defer log.Print("custom ds - done")
+	log.Print("connect to custom data source")
+
+	customConfig := getCustomConfig(path)
 
 	for _, customModule := range customConfig.List {
 		go customHandler(customModule, dataSourceChan)
@@ -30,6 +29,12 @@ func Start(dataSourceChan chan string, path string) {
 }
 
 func customHandler(module List, dataSourceChan chan string) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("something goes wrong in custom module.\nmodule - %v\nMsg > %v", module, r)
+		}
+	}()
+
 	var address string
 	switch module.Mode {
 	case "auto":
@@ -39,7 +44,7 @@ func customHandler(module List, dataSourceChan chan string) {
 	}
 	serverConnection, err := net.Listen("tcp", address)
 	if err != nil {
-		log.Fatal("listenService error")
+		log.Panicf("listenService error msg> %v",err)
 	}
 	defer serverConnection.Close()
 
@@ -75,15 +80,19 @@ func setDefaultCustomConfig() *Custom {
 	}
 }
 
-func getMqttConfig(path string) (*Custom, error) {
-	var cfg Custom
+func getCustomConfig(path string) (cfg *Custom) {
+	cfg = setDefaultCustomConfig()
+	_ = getConfig(path)(&cfg)
+	return
+}
+
+func getConfig(path string) func(v interface{}) error {
 	configFile, err := os.Open(path)
 	if err != nil {
-		fmt.Println(err.Error())
-		return &Custom{}, err
+		log.Printf("Using defaults. Bad config path : %v", path)
+		return nil
 	}
 	defer configFile.Close()
-	jsonParser := json.NewDecoder(configFile)
-	_ = jsonParser.Decode(&cfg)
-	return &cfg, nil
+	v := json.NewDecoder(configFile)
+	return v.Decode
 }

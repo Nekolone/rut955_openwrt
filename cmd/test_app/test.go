@@ -1,16 +1,100 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
-	"time"
+	"log"
+	"strconv"
+	"strings"
 )
 
+//type Map struct {
+//	m  map[string]interface{}
+//	t  flatmap.Tokenizer
+//	re *regexp.Regexp
+//}
+
 func main() {
-	for{
-		fmt.Print("13")
-		time.Sleep(2 * time.Second)
+
+	jsonStr := `{
+        "fruits" : {
+            "a": "apple",
+            "b": "banana"
+        },
+        "colors" : {
+            "r": "red",
+            "g": "[1,2,3,4,5,6]"
+        }
+    }`
+
+	data := make(map[string]interface{})
+	res := make(map[string]interface{})
+	json.Unmarshal([]byte(jsonStr), &data)
+	Flatten2("", data, res)
+	log.Print(res)
+	fmt.Printf("New: %v\n", strings.ReplaceAll(fmt.Sprint(res["colors.g"]),"g", "n"))
+
+	//fmt.Printf("Original: %v\n", Flatten(data))
+}
+func Flatten(m map[string]interface{}) map[string]interface{} {
+	o := map[string]interface{}{}
+	for k, v := range m {
+		switch child := v.(type) {
+		case map[string]interface{}:
+			nm := Flatten(child)
+			for nk, nv := range nm {
+				o[k+"."+nk] = nv
+			}
+		case []interface{}:
+			for i := 0; i < len(child); i++ {
+				o[k+"."+strconv.Itoa(i)] = child[i]
+			}
+		default:
+			o[k] = v
+		}
+	}
+	return o
+}
+
+func Flatten2(prefix string, src map[string]interface{}, dest map[string]interface{}) {
+	if len(prefix) > 0 {
+		prefix += "."
+	}
+	for k, v := range src {
+		switch child := v.(type) {
+		case map[string]interface{}:
+			Flatten2(prefix+k, child, dest)
+		case []interface{}:
+			for i := 0; i < len(child); i++ {
+				dest[prefix+k+"."+strconv.Itoa(i)] = child[i]
+			}
+		default:
+			dest[prefix+k] = v
+		}
 	}
 }
+
+//
+//func anotherFunc() {
+//	for {
+//		log.Print("q")
+//	}
+//}
+//
+//func printInRout(ch chan int) {
+//	defer func() {
+//	    if r := recover(); r != nil {
+//	        log.Panicf("WOOPS > %v", r)
+//	    }
+//	}()
+//	i:=0
+//	for {
+//		log.Print("next")
+//		ch <- i
+//		i++
+//		log.Panicf("hihihaha")
+//	}
+//}
 
 //type RutPathsConfig struct {
 //	WialonClientConfigPath          string `json:"wialon_client_config_path"`
@@ -44,8 +128,6 @@ func main() {
 //
 //}
 
-
-
 //func setDefaultRutGatewayConfig() *RutPathsConfig {
 //	return &RutPathsConfig{
 //		WialonClientConfigPath:          "/overlay/rut_wialon_gateway/CFG_wialon_client.json",
@@ -74,7 +156,6 @@ func main() {
 //	_ = jsonParser.Decode(&cfg)
 //	return cfg
 //}
-
 
 //
 //func we() {

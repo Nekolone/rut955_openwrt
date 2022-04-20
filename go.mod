@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/devopsfaith/flatmap v1.1.0 // indirect
 	github.com/goburrow/serial v0.1.0 // indirect
 	github.com/gorilla/websocket v1.4.2 // indirect
 	golang.org/x/net v0.0.0-20200425230154-ff2c4b7c35a0 // indirect

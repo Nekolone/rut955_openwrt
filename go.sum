@@ -1,3 +1,5 @@
+github.com/devopsfaith/flatmap v1.1.0 h1:3m7MKZZ2NDwBBCY8seZ6YaeV/vJROIIGkIUuohJlDhs=
+github.com/devopsfaith/flatmap v1.1.0/go.mod h1:vVpbomuvclRh7ZAmtFDYfpTGnTZiqco65D0XfZXD1Ak=
 github.com/eclipse/paho.mqtt.golang v1.3.5 h1:sWtmgNxYM9P2sP+xEItMozsR3w0cqZFlqnNN1bdl41Y=
 github.com/eclipse/paho.mqtt.golang v1.3.5/go.mod h1:eTzb4gxwwyWpqBUHGQZ4ABAV7+Jgm1PklsYT/eo8Hcc=
 github.com/fatih/set v0.2.1 h1:nn2CaJyknWE/6txyUDGwysr3G5QC6xWB/PtVjPBbeaA=

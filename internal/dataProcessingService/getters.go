@@ -9,8 +9,6 @@ import (
 	"time"
 )
 
-const nodataDouble = "NA;NA"
-
 func getDeviceData(dataSourceChan chan string) [][]string {
 	var dataList []string
 	dataSet := set.New(set.ThreadSafe)
@@ -18,8 +16,6 @@ func getDeviceData(dataSourceChan chan string) [][]string {
 		select {
 		case data := <-dataSourceChan:
 			dataSet.Add(data)
-
-
 		default:
 			dataList = nil
 			for _, data := range dataSet.List() {
@@ -104,13 +100,13 @@ func getSpeed() string {
 func getLat() string {
 	out, err := exec.Command("gpsctl", "-i").Output()
 	if (err != nil) || (len(out) == 0) {
-		return nodataDouble
+		return "NA;NA"
 	}
 
 	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	if fltOut == 0 {
-		return nodataDouble
+		return "NA;NA"
 	}
 	if fltOut > 0 {
 		return fmt.Sprintf("%.4f;N", fltOut*100)
@@ -121,12 +117,12 @@ func getLat() string {
 func getLon() string {
 	out, err := exec.Command("gpsctl", "-x").Output()
 	if (err != nil) || (len(out) == 0) {
-		return nodataDouble
+		return "NA;NA"
 	}
 	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	if fltOut == 0 {
-		return nodataDouble
+		return "NA;NA"
 	}
 	if fltOut > 0 {
 		return fmt.Sprintf("0%.4f;E", fltOut*100)

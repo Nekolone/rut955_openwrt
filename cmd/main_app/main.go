@@ -89,8 +89,9 @@ func launch(path string) {
 				log.Fatalf("Critical error in data processing service. RWG_app_controller should restart. Error msg> %v", r)
 			}
 		}()
+		dataSourceChan := make(chan string, dataPSConfig.DataSourceChannelSize)
 		for {
-			startDataProcessingService(dataChan, dataPSConfig, dataPSModulesConfig)
+			startDataProcessingService(dataChan, dataPSConfig, dataPSModulesConfig, dataSourceChan)
 			time.Sleep(10 * time.Second)
 			log.Print("restarting data processing service process")
 		}
@@ -103,8 +104,9 @@ func startDataProcessingService(
 	dataChan chan string,
 	dataPSConfig *dataProcessingService.Config,
 	dataPSModulesConfig *dataProcessingService.ModulesConfig,
+	dataSourceChan chan string,
 ) {
-	dataProcessingService.Start(dataChan, dataPSConfig, dataPSModulesConfig)
+	dataProcessingService.Start(dataChan, dataPSConfig, dataPSModulesConfig, dataSourceChan)
 }
 
 func startWialonClient(dataChan chan string, wialonConfig *wialonClient.Config) {

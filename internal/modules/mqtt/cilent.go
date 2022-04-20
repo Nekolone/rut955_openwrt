@@ -6,7 +6,7 @@ import (
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"os"
-	"strings"
+	"strconv"
 	"time"
 )
 
@@ -27,53 +27,22 @@ type DataFormat struct {
 }
 
 func Start(dataSourceChan chan string, path string) {
-	log.Println()
-	mqttConfig, err := getMqttConfig(path)
-	if err != nil {
-		log.Println("mqtt config path error, default config for local mqtt broker")
-		mqttConfig = setDefaultMqttConfig()
-	}
+	defer log.Print("mqtt ds - done")
+	log.Print("connect to mqtt data source")
+
+	mqttConfig := getMqttConfig(path)
 
 	for _, clientConfig := range mqttConfig.Clients {
 		go clientHandler(clientConfig, dataSourceChan)
 	}
 }
 
-func CallbackModifier(dataSourceChan chan string, dataFormat DataFormat) MQTT.MessageHandler {
-	var res MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
-		dataSourceChan <- getValueFromJSON(dataFormat, msg.Payload())
-	}
-	return res
-}
-
-func getValueFromJSON(dataFormat DataFormat, payload []byte) string {
-	jsonMap := make(map[string]json.RawMessage)
-	err := json.Unmarshal(payload, &jsonMap)
-	if err != nil {
-		return ""
-	}
-	payloadMap := make(map[string]string)
-	for k, message := range jsonMap {
-		payloadMap[k] = string(message)
-	}
-	if payloadMap[dataFormat.DataTypeField] == "" {
-		payloadMap[dataFormat.DataTypeField] = "3"
-	}
-
-	return fmt.Sprintf(
-		"%s:%s:%s",
-		strings.ReplaceAll(payloadMap[dataFormat.DataNameField], "\"", ""),
-		strings.ReplaceAll(payloadMap[dataFormat.DataTypeField], "\"", ""),
-		payloadMap[dataFormat.DataValueField],
-	)
-	// return map[string]string{
-	//	"name":  payloadMap[dataFormat.DataNameField],
-	//	"type":  payloadMap[dataFormat.DataTypeField],
-	//	"value": payloadMap[dataFormat.DataValueField],
-	//}
-}
-
 func clientHandler(clientConfig Client, dataSourceChan chan string) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("something goes wrong in mqtt module.\nclientConfig - %v\nMsg > %v", clientConfig, r)
+		}
+	}()
 	opts := MQTT.NewClientOptions().AddBroker(fmt.Sprintf("tcp://%s", clientConfig.IPPort))
 	mqttClient := MQTT.NewClient(opts)
 
@@ -90,22 +59,14 @@ func clientHandler(clientConfig Client, dataSourceChan chan string) {
 	}
 }
 
-//
-// func convertMqttData(deviceDataChan chan string) {
-//	deviceDataChan <- <-subCallBackChan
-//}
-
 func SubscribeService(c MQTT.Client, subMap map[string]byte, dataSourceChan chan string, dataFormat DataFormat) {
 	defer c.Disconnect(250)
 
-	// if token := c.SubscribeMultiple(subMap, msgHandl); token.Wait() && token.Error() != nil {
-	// if token := c.SubscribeMultiple(map[string]byte{"modbusData": 0, "modbusData2": 0}, CallbackModifier(deviceDataChan,
 	if token := c.SubscribeMultiple(subMap, CallbackModifier(dataSourceChan, dataFormat)); token.Wait() &&
 		token.Error() != nil {
 		fmt.Println(token.Error())
 		return
 	}
-
 	defer c.Unsubscribe("#")
 
 	for range time.NewTicker(time.Second * 10).C {
@@ -116,29 +77,82 @@ func SubscribeService(c MQTT.Client, subMap map[string]byte, dataSourceChan chan
 	}
 }
 
+func CallbackModifier(dataSourceChan chan string, dataFormat DataFormat) MQTT.MessageHandler {
+	var res MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
+		dataSourceChan <- getValueFromJSON(dataFormat, msg.Payload())
+	}
+	return res
+}
+
+func getValueFromJSON(dataFormat DataFormat, payload []byte) string {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Getting data from json error. Error > %v\nMSG>%s", r, payload)
+		}
+	}()
+	data := make(map[string]interface{})
+	if err := json.Unmarshal(payload, &data); err != nil {
+		return ""
+	}
+	res := make(map[string]interface{})
+	Flatten2("", data, res)
+	if res[dataFormat.DataTypeField] == "" {
+		res[dataFormat.DataTypeField] = 3
+	}
+
+	return fmt.Sprintf(
+		"%s:%s:%s",
+		res[dataFormat.DataNameField],
+		res[dataFormat.DataTypeField],
+		res[dataFormat.DataValueField],
+	)
+}
+
+func Flatten2(prefix string, src map[string]interface{}, dest map[string]interface{}) {
+	if len(prefix) > 0 {
+		prefix += "."
+	}
+	for k, v := range src {
+		switch child := v.(type) {
+		case map[string]interface{}:
+			Flatten2(prefix+k, child, dest)
+		case []interface{}:
+			for i := 0; i < len(child); i++ {
+				dest[prefix+k+"."+strconv.Itoa(i)] = child[i]
+			}
+		default:
+			dest[prefix+k] = v
+		}
+	}
+}
+
+func getMqttConfig(path string) (cfg *Clients) {
+	cfg = setDefaultMqttConfig()
+	_ = getConfig(path)(&cfg)
+	return
+}
+
+func getConfig(path string) func(v interface{}) error {
+	configFile, err := os.Open(path)
+	if err != nil {
+		log.Printf("Using defaults. Bad config path : %v", path)
+		return nil
+	}
+	defer configFile.Close()
+	v := json.NewDecoder(configFile)
+	return v.Decode
+}
+
 func setDefaultMqttConfig() *Clients {
 	return &Clients{
 		[]Client{{
 			IPPort:           "127.0.0.1:18883",
 			SubscriptionList: []string{"#"},
 			DataFormat: DataFormat{
-				DataNameField:  "name",
+				DataNameField:  "req_name",
 				DataTypeField:  "type",
-				DataValueField: "value",
+				DataValueField: "data_value",
 			},
 		}},
 	}
-}
-
-func getMqttConfig(path string) (*Clients, error) {
-	var cfg Clients
-	configFile, err := os.Open(path)
-	if err != nil {
-		fmt.Println(err.Error())
-		return &Clients{}, err
-	}
-	defer configFile.Close()
-	jsonParser := json.NewDecoder(configFile)
-	_ = jsonParser.Decode(&cfg)
-	return &cfg, nil
 }
