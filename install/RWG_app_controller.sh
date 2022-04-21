@@ -1,10 +1,8 @@
 #!/bin/sh
 
-#TODO: сделать запуск если нет процесса RWG_main_app
-
-
 /overlay/rut_wialon_gateway/RWG_main_app &
 /overlay/rut_wialon_gateway/RWG_buff_remover.sh &
+/overlay/rut_wialon_gateway/RWG_app_restarter.sh &
 
 app_path=/overlay/rut_wialon_gateway
 buf_path=/tmp/RWG_app_buffer
@@ -35,7 +33,7 @@ while :; do
     mv $buf_path/RWG_main_app $app_path/RWG_main_app
     continue
   fi
-
+  
   mv last_version $app_path/curr_version
 
   chmod +x RWG_main_app

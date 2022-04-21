@@ -12,6 +12,7 @@ wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/
 wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/CFG_wialon_client.json
 wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/r_w_g_service_controller
 wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/RWG_app_controller.sh
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/RWG_app_restarter.sh
 wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/RWG_buff_remover.sh
 wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/curr_version
 
@@ -33,5 +34,8 @@ mv ./RWG_buff_remover.sh /overlay/rut_wialon_gateway/RWG_buff_remover.sh
 
 chmod +x RWG_app_controller.sh
 mv ./RWG_app_controller.sh /overlay/rut_wialon_gateway/RWG_app_controller.sh
+
+chmod +x RWG_app_restarter.sh
+mv ./RWG_app_restarter.sh /overlay/rut_wialon_gateway/RWG_app_restarter.sh
 
 mv ./curr_version /overlay/rut_wialon_gateway/curr_version
