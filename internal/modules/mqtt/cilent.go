@@ -51,11 +51,13 @@ func clientHandler(clientConfig Client, dataSourceChan chan string) {
 		subMap[s] = 0
 	}
 
+	log.Print("mqtt module successfully start")
 	for range time.NewTicker(time.Second * 10).C {
 		if token := mqttClient.Connect(); token.Wait() && token.Error() != nil {
 			continue
 		}
 		SubscribeService(mqttClient, subMap, dataSourceChan, clientConfig.DataFormat)
+		log.Print("reconnect to mqtt broker")
 	}
 }
 

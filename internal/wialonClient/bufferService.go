@@ -8,11 +8,10 @@ import (
 )
 
 func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, bufferPath string) {
-	log.Println("send buffered data")
-
+	log.Print("Send data from buffer file")
 	fileHandler, err := os.OpenFile(bufferPath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
-		log.Println("cant read buffer file")
+		log.Println("no buffer file")
 		*networkStatus = "online"
 		log.Println("networkStatus -> online")
 		return
@@ -29,7 +28,6 @@ func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, buffer
 		switch *networkStatus {
 		case "postBuffering":
 			if send(msg, clientConnection, networkStatus) != "success" {
-				log.Println("save via postBuf")
 				saveToBuffer(msg, newBufferPath)
 			}
 		case "buffering":
@@ -68,6 +66,7 @@ func saveToBuffer(data string, bufferPath string) {
 		}
 	}
 	defer fileHandler.Close()
+	log.Print("Save to buffer")
 	_, _ = fileHandler.WriteString(data + "\n")
 }
 

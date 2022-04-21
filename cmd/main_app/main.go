@@ -29,7 +29,7 @@ func main() {
 	setupLogger("/tmp/RWG_app_buffer/log.log")
 
 	log.Print("start launch loop")
-	configPath := "/overlay/rut_wialon_gateway/APP_PATHS.json"
+	configPath := "/overlay/rut_wialon_gateway/APP_PATHS.json" // path to main app config file
 	for {
 		launch(configPath)
 		log.Print("restarting all service")
@@ -66,30 +66,32 @@ func launch(path string) {
 	rutConfigPaths := getRutConfigPaths(path)
 	wialonClientConfig, dataPSConfig, dataPSModulesConfig := getRutConfig(rutConfigPaths)
 
-	dataChan := make(chan string, rutConfigPaths.DataChannelSize)
+	dataChan := make(chan string, rutConfigPaths.DataChannelSize) // main data channel. Link dps-wialonClient
 
 	log.Print("start main routines (threads)")
+	// start wialon client thread
 	go func() {
-		defer wg.Done()
 		defer func() {
 			if r := recover(); r != nil {
 				log.Fatalf("Critical error in wialon client. RWG_app_controller should restart. Error msg> %v", r)
 			}
 		}()
+		defer wg.Done()
 		for {
 			startWialonClient(dataChan, wialonClientConfig)
 			time.Sleep(10 * time.Second)
 			log.Print("restarting wialon client process")
 		}
 	}()
+	// start dps thread
 	go func() {
-		defer wg.Done()
 		defer func() {
 			if r := recover(); r != nil {
 				log.Fatalf("Critical error in data processing service. RWG_app_controller should restart. Error msg> %v", r)
 			}
 		}()
-		dataSourceChan := make(chan string, dataPSConfig.DataSourceChannelSize)
+		defer wg.Done()
+		dataSourceChan := make(chan string, dataPSConfig.DataSourceChannelSize) // sub data channel. Link dataSources-converter
 		for {
 			startDataProcessingService(dataChan, dataPSConfig, dataPSModulesConfig, dataSourceChan)
 			time.Sleep(10 * time.Second)

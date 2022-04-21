@@ -44,7 +44,7 @@ func Start(dataChan chan string, config *Config, modulesConfig *ModulesConfig, d
 	go config.dataToWialonModule(dataChan, dataSourceChan, done)
 
 	if d := <-done; true {
-		log.Panicf("Something gose wrong: %v", d)
+		log.Panicf("Restart Data Processing Service. Reason: %v", d)
 	}
 }
 
@@ -93,14 +93,18 @@ func (config *ModulesConfig) connectDataSourceModules(dataSourceChan chan string
 		return
 	case <-time.After(16 * time.Second):
 		for _, module := range config.Modules {
+			log.Printf("start %v", module.Name)
 			startModule(module, dataSourceChan)
 		}
 	}
 }
 
 func startModule(module Module, dataSourceChan chan string) {
-	defer recoverDPSDefaultPanic()
-
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Recover painc from module. Panic msg > %v", r)
+		}
+	}()
 	switch module.Name {
 	case "modbus":
 		modbus_rut.Start(dataSourceChan, module.ModuleConfigPath)
@@ -108,14 +112,7 @@ func startModule(module Module, dataSourceChan chan string) {
 		mqtt.Start(dataSourceChan, module.ModuleConfigPath)
 	case "custom":
 		custom.Start(dataSourceChan, module.ModuleConfigPath)
-
 	default:
 		log.Printf("module %s not found", module.Name)
-	}
-}
-
-func recoverDPSDefaultPanic() {
-	if r := recover(); r != nil {
-		log.Printf("Recover painc from module. Panic msg > %v", r)
 	}
 }

@@ -1,8 +1,11 @@
 package wialonClient
 
 import (
+	"fmt"
 	"log"
 	"net"
+	"strings"
+	"time"
 )
 
 type Config struct {
@@ -14,51 +17,87 @@ type Config struct {
 }
 
 func Start(dataChan chan string, conf *Config) {
-	networkStatus := "start"
-
-	log.Println("wialon cli - start")
-
+	defer func() {
+		if r := recover(); r == nil {
+			log.Printf("recover in wialon client. Panic > %v", r)
+			if strings.Contains(fmt.Sprintf("%v", r), "FATAL") {
+				log.Panicf("FATAL error in data processing service. Use painc. Reason: %v", r)
+			}
+		}
+	}()
+	log.Print("Wialon Client start")
+	networkStatus := "start" // var that describes the state of the connection
 	clientConnection, tcpAddr := ConnectToServer(conf, &networkStatus)
-	go ReconnectingService(conf, &tcpAddr, &clientConnection, &networkStatus)
-	DataWorker(conf, &networkStatus, &clientConnection, dataChan)
+	defer clientConnection.Close()
 
-	log.Println("wialon cli - end")
+	log.Print("Wialon Client routines start")
+	done := make(chan string)
+	go ReconnectingService(conf, &tcpAddr, &clientConnection, &networkStatus, done)
+	go DataWorker(conf, &clientConnection, &networkStatus, dataChan, done)
+
+
+	log.Print("Wialon Client wait for routines")
+	if d := <-done; true {
+		go func() {
+			for networkStatus != "DONE" {
+				networkStatus = "RESTART"
+				time.Sleep(100 * time.Millisecond)
+			}
+		}()
+		log.Printf("first done triggered. Restart wialon client. Reason : %v", d)
+		d = <-done
+		networkStatus = "DONE"
+		close(done)
+		log.Panicf("Restart wialon client. Reason: %v", d)
+	}
 }
 
-func ConnectToServer(conf *Config, networkStatus *string) (*net.TCPConn, *net.TCPAddr) {
-	log.Printf("wialon cli - connecting to server %v", conf.WialonServerAddress)
+func ConnectToServer(conf *Config, networkStatus *string) (clientConnection *net.TCPConn, tcpAddr *net.TCPAddr) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("First connection error. Save all data into buffer file. err msg > %v", r)
+			if strings.Contains(fmt.Sprintf("%v", r), "FATAL") {
+				log.Panicf("FATAL error in data processing service. Use painc. Reason: %v", r)
+			}
+			*networkStatus = "buffering"
+			log.Print("networkStatus -> buffering")
+		}
+	}()
 
-	tcpAddr, err := net.ResolveTCPAddr(conf.ConnectionType, conf.WialonServerAddress)
-	if err != nil {
-		log.Fatal("Client creation error")
+	log.Printf("resolving tcp addr %v", conf.WialonServerAddress)
+	var err error
+	if tcpAddr, err = net.ResolveTCPAddr(conf.ConnectionType, conf.WialonServerAddress); err != nil {
+		log.Panicf("FATAL : cant resolve tcp addr > %v", err)
 	}
+	log.Print("resolving successfully")
 
-	clientConnection, err := net.DialTCP(conf.ConnectionType, nil, tcpAddr)
-	if err != nil {
-		log.Println("Dial failed:", err.Error())
-		*networkStatus = "buffering"
-		log.Println("networkStatus -> buffering")
-		return clientConnection, tcpAddr
+	log.Print("connecting to wialon server")
+	if clientConnection, err = net.DialTCP(conf.ConnectionType, nil, tcpAddr); err != nil {
+		log.Panicf("dial error %v", err)
 	}
+	log.Print("connecting successfully")
 
-	log.Println("wialon cli - login")
-
-	res := login(&clientConnection, conf.Login, conf.Password)
-	if res != "" {
-		log.Printf("login error: %s\n", res)
-		_ = clientConnection.Close()
-		*networkStatus = "buffering"
-		log.Println("networkStatus -> buffering")
-		return clientConnection, tcpAddr
+	log.Print("login to wialon server")
+	if answer := login(clientConnection, conf.Login, conf.Password); answer != "" {
+		log.Panicf(answer)
 	}
+	log.Print("login successfully")
 
-	log.Printf("connecting successfully")
+	log.Print("check buffer file and start data sharing")
 	*networkStatus = "postBuffering"
-	log.Println("networkStatus -> postBuffering")
-	return clientConnection, tcpAddr
+	log.Print("networkStatus -> postBuffering")
+	return
 }
 
-func DataWorker(conf *Config, networkStatus *string, clientConnection **net.TCPConn, dataChan chan string) {
+func DataWorker(conf *Config, clientConnection **net.TCPConn, networkStatus *string, dataChan chan string, done chan string) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Recovered in f > %v", r)
+		}
+		done <- "module restart"
+		*networkStatus = "RESTART"
+		_ = (*clientConnection).Close()
+	}()
 	log.Println("DataWorker start")
 
 	for {
@@ -70,15 +109,11 @@ func DataWorker(conf *Config, networkStatus *string, clientConnection **net.TCPC
 			saveToBuffer(data, conf.DataBufferPath)
 		case "postBuffering":
 			sendBufferData(*clientConnection, networkStatus, conf.DataBufferPath)
-			if r := recover(); r != nil {
-				log.Printf("Recovered in f > %v", r)
-			}
 			sendData(data, *clientConnection, networkStatus, conf.DataBufferPath)
 		case "stop":
 			log.Println("client service stop")
 			return
-		case "restart":
-			log.Println("client service restart")
+		case "RESTART":
 			return
 		default:
 			saveToBuffer(data, conf.DataBufferPath)
