@@ -19,7 +19,9 @@ func testF() (answer string) {
 		if r := recover(); r != nil {
 			log.Print("networkStatus -> buffering")
 			answer = fmt.Sprint(r)
-			_ = clientConnection.Close().Error()
+			if clientConnection != nil {
+				clientConnection.Close()
+			}
 
 		}
 	}()
