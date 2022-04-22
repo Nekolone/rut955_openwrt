@@ -24,9 +24,12 @@ func sendData(data string, clientConnection *net.TCPConn, networkStatus *string,
 func send(data string, clientConnection *net.TCPConn, networkStatus *string) (answer string) {
 	defer func() {
 		if r := recover(); r != nil {
-			_ = clientConnection.Close()
+			log.Printf("Send panic. Recover msg > %v", r)
 			log.Print("networkStatus -> buffering")
 			*networkStatus = "buffering"
+			if err := clientConnection.Close(); err != nil {
+				log.Print("cant close connection (already closed)")
+			}
 			answer = fmt.Sprint(r)
 		}
 	}()
