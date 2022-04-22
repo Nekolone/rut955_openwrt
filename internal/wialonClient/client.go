@@ -30,7 +30,7 @@ func Start(dataChan chan string, conf *Config) {
 	clientConnection, tcpAddr := ConnectToServer(conf, &networkStatus)
 	defer func() {
 		if clientConnection != nil {
-			clientConnection.Close()
+			_ = clientConnection.Close()
 		}
 	}()
 
@@ -81,7 +81,7 @@ func ConnectToServer(conf *Config, networkStatus *string) (clientConnection *net
 	log.Print("connecting successfully")
 
 	log.Print("login to wialon server")
-	if answer := login(clientConnection, conf.Login, conf.Password); answer != "" {
+	if answer := login(&clientConnection, conf.Login, conf.Password); answer != "" {
 		log.Panicf(answer)
 	}
 	log.Print("login successfully")
@@ -93,6 +93,11 @@ func ConnectToServer(conf *Config, networkStatus *string) (clientConnection *net
 }
 
 func DataWorker(conf *Config, clientConnection **net.TCPConn, networkStatus *string, dataChan chan string, done chan string) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("close connection error %v", r)
+		}
+	}()
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("Recovered in f > %v", r)

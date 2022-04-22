@@ -19,6 +19,11 @@ func listenService(serverConnection net.Listener, deviceDataChan chan string) {
 }
 
 func handleRequest(connection net.Conn, deviceDataChan chan string) {
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("close connection error %v", r)
+		}
+	}()
 	defer connection.Close()
 	clientReader := bufio.NewReader(connection)
 	for {

@@ -8,16 +8,19 @@ import (
 	"time"
 )
 
-func login(clientConnection *net.TCPConn, id string, pass string) (answer string) {
+func login(clientConnection **net.TCPConn, id string, pass string) (answer string) {
 	defer func() {
 		if r := recover(); r != nil {
-			if clientConnection != nil {
-				_ = clientConnection.Close()
-			}
+			log.Printf("close connection error %v", r)
+		}
+	}()
+	defer func() {
+		if r := recover(); r != nil {
+			log.Printf("Recover in f > %v", r)
 			answer = fmt.Sprint(r)
 		}
 	}()
-	serverReader := bufio.NewReader(clientConnection)
+	serverReader := bufio.NewReader(*clientConnection)
 	var timer *time.Timer
 	result := make(chan string)
 	defer func() {
@@ -28,7 +31,10 @@ func login(clientConnection *net.TCPConn, id string, pass string) (answer string
 	}()
 
 	for i := 0; i < 5; i++ {
-		if _, err := clientConnection.Write([]byte(string("#L#" + id + ";" + pass + "\r\n"))); err != nil {
+		if _, err := (*clientConnection).Write([]byte(string("#L#" + id + ";" + pass + "\r\n"))); err != nil {
+			if *clientConnection != nil {
+				_ = (*clientConnection).Close()
+			}
 			log.Panicf("close connection\nlogin error %s", err)
 		}
 
@@ -50,11 +56,17 @@ func login(clientConnection *net.TCPConn, id string, pass string) (answer string
 			case "success":
 				return ""
 			default:
+				if *clientConnection != nil {
+					_ = (*clientConnection).Close()
+				}
 				log.Panicf("close connection\nlogin error. Answer %s", res)
 			}
 		case <-timer.C:
 			log.Print("timeout")
 		}
+	}
+	if *clientConnection != nil {
+		_ = (*clientConnection).Close()
 	}
 	log.Panicf("close connection\nlogin error. Wrong login or pass:%v %v", id, pass)
 	return

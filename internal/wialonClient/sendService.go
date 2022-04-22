@@ -27,10 +27,6 @@ func send(data string, clientConnection **net.TCPConn, networkStatus *string) (a
 			log.Printf("Send panic. Recover msg > %v", r)
 			log.Print("networkStatus -> buffering")
 			*networkStatus = "buffering"
-			log.Printf("%v", *clientConnection)
-			if *clientConnection != nil {
-				(*clientConnection).Close()
-			}
 			answer = fmt.Sprint(r)
 		}
 	}()
@@ -46,6 +42,9 @@ func send(data string, clientConnection **net.TCPConn, networkStatus *string) (a
 	log.Print("Send to server")
 	for i := 1; i < 5; i++ {
 		if _, err := (*clientConnection).Write([]byte(data + "\r\n")); err != nil {
+			if *clientConnection != nil {
+				_ = (*clientConnection).Close()
+			}
 			log.Panicf("Write to server failed: %v", err.Error())
 		}
 
@@ -81,6 +80,9 @@ func send(data string, clientConnection **net.TCPConn, networkStatus *string) (a
 		case <-timer.C:
 			log.Print("timeout")
 		}
+	}
+	if (*clientConnection) != nil {
+		_ = (*clientConnection).Close()
 	}
 	log.Panicf("send error")
 	return

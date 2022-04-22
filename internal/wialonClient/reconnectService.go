@@ -13,9 +13,6 @@ func ReconnectingService(conf *Config, tcpAddr **net.TCPAddr, clientConnection *
 		}
 		done <- "module restart"
 		*networkStatus = "RESTART"
-		if *clientConnection != nil {
-			(*clientConnection).Close()
-		}
 	}()
 	recTimer := time.NewTicker(time.Minute)
 	log.Println("ReconnectingService start")
@@ -36,7 +33,7 @@ func ReconnectingService(conf *Config, tcpAddr **net.TCPAddr, clientConnection *
 		log.Print("reconnect successfully")
 
 		log.Print("login to wialon server")
-		if res := login(*clientConnection, conf.Login, conf.Password); res != "" {
+		if res := login(clientConnection, conf.Login, conf.Password); res != "" {
 			log.Println("login error")
 			if *clientConnection != nil {
 				_ = (*clientConnection).Close()
