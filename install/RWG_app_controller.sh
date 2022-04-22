@@ -1,5 +1,9 @@
 #!/bin/sh
 
+if [[ -d "/tmp/RWG_app_buffer" ]]; then
+  mkdir /tmp/RWG_app_buffer
+fi
+
 /overlay/rut_wialon_gateway/RWG_main_app &
 /overlay/rut_wialon_gateway/RWG_buff_remover.sh &
 /overlay/rut_wialon_gateway/RWG_app_restarter.sh &
