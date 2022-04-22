@@ -1,0 +1,7 @@
+{
+  "wialon_client_config_path": "/overlay/rut_wialon_gateway/CFG_wialon_client.json",
+  "data_processing_service_config_path": "/overlay/rut_wialon_gateway/CFG_data_processing_service.json",
+  "modules_config_path": "/overlay/rut_wialon_gateway/MODULES_LIST.json",
+  "log_file_path": "/tmp/RWG_app_buffer/log.log",
+  "data_channel_size": 50
+}

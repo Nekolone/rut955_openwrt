@@ -1,0 +1,54 @@
+2022/04/14 15:07:52 test.go:17: logger start
+2022/04/14 15:07:52 test.go:18: logger start
+2022/04/14 15:07:52 test.go:19: logger start
+2022/04/14 15:07:52 test.go:20: logger start
+2022/04/14 15:07:52 test.go:21: logger start
+2022/04/14 15:14:35 test.go:17: logger start
+2022/04/14 15:14:35 test.go:18: logger start
+2022/04/14 15:14:35 test.go:19: logger start
+2022/04/14 15:14:35 test.go:20: logger start
+2022/04/14 15:14:35 test.go:21: logger start
+2022/04/14 15:18:13 test.go:17: logger start
+2022/04/14 15:18:13 anotherOne.go:6: test
+2022/04/14 15:37:36 test.go:17: logger start
+2022/04/14 15:37:36 anotherOne.go:6: test
+2022/04/14 15:38:42 test.go:17: logger start
+2022/04/14 15:38:42 anotherOne.go:6: test
+2022/04/14 15:39:21 test.go:18: logger start
+2022/04/14 15:39:21 anotherOne.go:6: test
+2022/04/14 15:41:42 test.go:18: logger start
+2022/04/14 15:41:42 anotherOne.go:6: test
+2022/04/14 15:42:40 test.go:24: logger start
+2022/04/14 15:42:40 anotherOne.go:6: test
+2022/04/14 15:42:40 test.go:13: Recovered in f > unexpected
+2022/04/14 15:47:32 test.go:23: logger start
+2022/04/14 15:47:32 anotherOne.go:11: test
+2022/04/14 15:47:32 anotherOne.go:8: recovered painc in ptlf > unexpected
+2022/04/14 15:47:32 test.go:25: really recovered ---
+2022/04/14 15:50:03 test.go:23: logger start
+2022/04/14 15:50:03 anotherOne.go:11: test
+2022/04/14 15:50:03 anotherOne.go:12: unexpected
+2022/04/14 15:50:03 anotherOne.go:8: recovered painc in ptlf > unexpected
+2022/04/14 15:50:03 test.go:25: really recovered ---
+2022/04/14 16:24:29 test.go:23: logger start
+2022/04/14 16:24:29 anotherOne.go:12: test
+2022/04/14 16:24:29 anotherOne.go:13: unexpected
+2022/04/14 16:24:29 anotherOne.go:8: recovered painc in ptlf > unexpected
+2022/04/14 16:24:29 test.go:25: 123
+2022/04/14 16:24:29 test.go:26: really recovered ---
+2022/04/14 16:27:31 test.go:32: logger start
+2022/04/14 16:27:31 test.go:60: bad rut cfg path : open 123: no such file or directory
+2022/04/14 16:27:31 test.go:52: Recover {bad rut cfg path : open 123: no such file or directory}. Using defaults
+2022/04/14 16:27:31 test.go:34: &{/overlay/rut_wialon_gateway/CFG_wilaon_client.json /overlay/rut_wialon_gateway/CFG_data_processing_service.json /overlay/rut_wialon_gateway/MODULES_LIST.json /tmp/RWG_app_buffer/log.log 0}
+2022/04/14 16:28:00 test.go:32: logger start
+2022/04/14 16:28:00 test.go:60: bad rut cfg path : open 123: no such file or directory
+2022/04/14 16:28:00 test.go:52: Recover {bad rut cfg path : open 123: no such file or directory}. Using defaults
+2022/04/14 16:28:00 test.go:34: {/overlay/rut_wialon_gateway/CFG_wilaon_client.json /overlay/rut_wialon_gateway/CFG_data_processing_service.json /overlay/rut_wialon_gateway/MODULES_LIST.json /tmp/RWG_app_buffer/log.log 0}
+2022/04/14 16:31:32 test.go:32: logger start
+2022/04/14 16:31:32 test.go:64: bad rut cfg path : open 123: no such file or directory
+2022/04/14 16:31:32 test.go:56: Recover {bad rut cfg path : open 123: no such file or directory}. Using defaults
+2022/04/14 16:31:32 test.go:34: {/overlay/rut_wialon_gateway/CFG_wilaon_client.json /overlay/rut_wialon_gateway/CFG_data_processing_service.json /overlay/rut_wialon_gateway/MODULES_LIST.json /tmp/RWG_app_buffer/log.log 0}
+2022/04/14 16:31:32 test.go:35: 0
+2022/04/14 16:31:32 test.go:36: /overlay/rut_wialon_gateway/MODULES_LIST.json
+2022/04/14 16:31:32 test.go:37: /overlay/rut_wialon_gateway/CFG_data_processing_service.json
+2022/04/14 16:31:32 test.go:38: /overlay/rut_wialon_gateway/CFG_wilaon_client.json

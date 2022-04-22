@@ -8,28 +8,26 @@ import (
 )
 
 func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, bufferPath string) {
-	log.Println("send buffered data")
-
-	fileHanler, err := os.OpenFile(bufferPath, os.O_RDONLY, os.ModePerm)
+	log.Print("Send data from buffer file")
+	fileHandler, err := os.OpenFile(bufferPath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
-		log.Println("cant read buffer file")
+		log.Println("no buffer file")
 		*networkStatus = "online"
 		log.Println("networkStatus -> online")
 		return
 	}
 
-	newBufferPath := "/overlay/wialon_rut955_gateway/newBuffer.buf"
+	newBufferPath := "/tmp/RWG_app_buffer/newBuffer.buf"
 	defer deleteOldBuffer(newBufferPath, bufferPath)
-	defer fileHanler.Close()
+	defer fileHandler.Close()
 
-	fileScanner := bufio.NewScanner(fileHanler)
+	fileScanner := bufio.NewScanner(fileHandler)
 	var msg string
 	for fileScanner.Scan() {
 		msg = fileScanner.Text()
 		switch *networkStatus {
 		case "postBuffering":
 			if send(msg, clientConnection, networkStatus) != "success" {
-				log.Println("save via postBuf")
 				saveToBuffer(msg, newBufferPath)
 			}
 		case "buffering":
@@ -45,7 +43,7 @@ func sendBufferData(clientConnection *net.TCPConn, networkStatus *string, buffer
 	}
 
 	if err = fileScanner.Err(); err != nil {
-		log.Fatalf("scan file error: %v", err)
+		log.Panicf("scan file error: %v", err)
 		return
 	}
 
@@ -68,7 +66,8 @@ func saveToBuffer(data string, bufferPath string) {
 		}
 	}
 	defer fileHandler.Close()
-	fileHandler.WriteString(data + "\n")
+	log.Print("Save to buffer")
+	_, _ = fileHandler.WriteString(data + "\n")
 }
 
 func deleteOldBuffer(newBufferPath string, bufferPath string) {

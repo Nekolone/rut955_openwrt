@@ -3,55 +3,60 @@ package wialonClient
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"time"
 )
 
-func login(clientConnection **net.TCPConn, id string, pass string) string {
-	serverReader := bufio.NewReader(*clientConnection)
+func login(clientConnection *net.TCPConn, id string, pass string) (answer string) {
+	defer func() {
+	    if r := recover(); r != nil {
+			_ = clientConnection.Close()
+			answer = fmt.Sprint(r)
+			return
+		}
+	}()
+	serverReader := bufio.NewReader(clientConnection)
 	var timer *time.Timer
-	for i := 1; i < 5; i++ {
-		timer = time.NewTimer(time.Second * 30)
+	result := make(chan string)
+	defer func() {
+		if timer != nil {
+			timer.Stop()
+		}
+		close(result)
+	}()
 
-		if _, err := (*clientConnection).Write([]byte(string("#L#" + id + ";" + pass + "\r\n"))); err != nil {
-			log.Println("Login connection error:", err.Error())
-			return "error"
+	for i := 0; i < 5; i++ {
+		if _, err := clientConnection.Write([]byte(string("#L#" + id + ";" + pass + "\r\n"))); err != nil {
+			log.Panicf("close connection\nlogin error %s", err)
 		}
 
-		result := make(chan string)
+		timer = time.NewTimer(time.Second * 30)
 
 		go func() {
 			serverResponse, err := serverReader.ReadString('\n')
-			switch err {
-			case nil:
-				result <- serverResponse
-			case io.EOF:
-				result <- "server closed the connection"
-			default:
-				result <- fmt.Sprintf("server error: %v\n", err)
+			if err != nil {
+				result <- fmt.Sprintf("msg:%s error: %v\n", serverResponse, err)
 			}
+			result <- serverResponse
 		}()
 
 		select {
 		case res := <-result:
 			switch reactToLoginResponse(res) {
 			case "resend":
-				log.Println("ligin problem")
-				break
+				log.Printf("login -%d- failed", i)
 			case "success":
-				log.Println("login successfully")
 				return ""
 			default:
-				return "error"
+				log.Panicf("close connection\nlogin error. Answer %s", res)
 			}
 		case <-timer.C:
-			log.Println("timeout")
+			log.Print("timeout")
 		}
 	}
-	timer.Stop()
-	return "error"
+	log.Panicf("close connection\nlogin error. Wrong login or pass:%v %v",id, pass)
+	return
 }
 
 func reactToLoginResponse(response string) string {

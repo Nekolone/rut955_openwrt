@@ -16,8 +16,6 @@ func getDeviceData(dataSourceChan chan string) [][]string {
 		select {
 		case data := <-dataSourceChan:
 			dataSet.Add(data)
-
-
 		default:
 			dataList = nil
 			for _, data := range dataSet.List() {
@@ -58,7 +56,7 @@ func getHdop() string {
 		return "NA"
 	}
 
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.3f", fltOut)
 }
@@ -69,7 +67,7 @@ func getSats() string {
 		return "NA"
 	}
 
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	return strOut
 }
 
@@ -83,7 +81,7 @@ func getCourse() string {
 		return "NA"
 	}
 
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.0f", fltOut)
 }
@@ -94,7 +92,7 @@ func getSpeed() string {
 		return "NA"
 	}
 
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.0f", fltOut)
 }
@@ -105,7 +103,7 @@ func getLat() string {
 		return "NA;NA"
 	}
 
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	if fltOut == 0 {
 		return "NA;NA"
@@ -114,7 +112,6 @@ func getLat() string {
 		return fmt.Sprintf("%.4f;N", fltOut*100)
 	}
 	return fmt.Sprintf("%.4f;S", fltOut*-100)
-
 }
 
 func getLon() string {
@@ -122,7 +119,7 @@ func getLon() string {
 	if (err != nil) || (len(out) == 0) {
 		return "NA;NA"
 	}
-	strOut := strings.Replace(string(out), "\n", "", -1)
+	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	if fltOut == 0 {
 		return "NA;NA"

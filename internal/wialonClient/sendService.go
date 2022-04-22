@@ -3,7 +3,6 @@ package wialonClient
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"log"
 	"net"
 	"time"
@@ -22,63 +21,65 @@ func sendData(data string, clientConnection *net.TCPConn, networkStatus *string,
 	}
 }
 
-func send(data string, clientConnection *net.TCPConn, networkStatus *string) string {
+func send(data string, clientConnection *net.TCPConn, networkStatus *string) (answer string) {
+	defer func() {
+		if r := recover(); r != nil {
+			_ = clientConnection.Close()
+			log.Print("networkStatus -> buffering")
+			*networkStatus = "buffering"
+			answer = fmt.Sprint(r)
+		}
+	}()
 	serverReader := bufio.NewReader(clientConnection)
 	timer := time.NewTimer(time.Second * 90)
+	result := make(chan string)
+	defer func() {
+		if timer != nil {
+			timer.Stop()
+		}
+		close(result)
+	}()
+	log.Print("Send to server")
 	for i := 1; i < 5; i++ {
-		timer = time.NewTimer(time.Second * 90)
-
 		if _, err := clientConnection.Write([]byte(data + "\r\n")); err != nil {
-			log.Println("Write to server failed:", err.Error())
-			*networkStatus = "buffering"
-			log.Println("networkStatus -> buffering")
-			return "send error"
+			log.Panicf("Write to server failed: %v", err.Error())
 		}
 
-		result := make(chan string)
+		timer = time.NewTimer(time.Second * 90)
 
 		go func() {
 			serverResponse, err := serverReader.ReadString('\n')
-			switch err {
-			case nil:
-				result <- serverResponse
-			case io.EOF:
-				result <- "server closed the connection"
-			default:
-				result <- fmt.Sprintf("server error: %v", err)
+			if err != nil {
+				result <- fmt.Sprintf("msg:%s error: %v\n", serverResponse, err)
 			}
+			result <- serverResponse
 		}()
 
 		select {
 		case res := <-result:
 			switch reactToResponse(res) {
 			case "resend":
-				log.Println("resend data")
+				log.Print("resend data")
 			case "success":
-				log.Println("data successfully sent to server")
+				log.Print("data successfully sent to server")
 				return "success"
 			case "#RESTART":
-				*networkStatus = "restart"
-				log.Println("networkStatus -> restart")
+				*networkStatus = "RESTART"
+				log.Print("networkStatus -> RESTART")
 				return "success"
 			case "#STOP":
-				*networkStatus = "stop"
-				log.Println("networkStatus -> stop")
+				*networkStatus = "RESTART"
+				log.Print("networkStatus -> RESTART")
 				return "success"
 			default:
 				log.Printf("unknown answer %s", res)
 			}
 		case <-timer.C:
-			log.Println("timeout")
+			log.Print("timeout")
 		}
 	}
-	timer.Stop()
-
-	log.Println("send error")
-	clientConnection.Close()
-	*networkStatus = "buffering"
-	log.Println("networkStatus -> buffering")
-	return "send error"
+	log.Panicf("send error")
+	return
 }
 
 func reactToResponse(response string) string {
@@ -101,6 +102,10 @@ func reactToResponse(response string) string {
 		return "success"
 	case "#AD#15\r\n":
 		return "success"
+	case "#RESTART\r\n":
+		return "RESTART"
+	case "#STOP\r\n":
+		return "RESTART"
 	default:
 		return response
 	}

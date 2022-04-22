@@ -1,31 +1,41 @@
 #!/bin/sh
 
-wget https://github.com/Nekolone/rut955_openwrt/raw/main/install/main_app
-wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/module_custom_config.json
-wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/module_mqtt_config.json
-wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_data_processing_service_config.json
-wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_gateway_config_paths.json
-wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_modules_config.json
-wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_wialon_client_config.json
-wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_wialon_gateway
-wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/install/rut_wialon_gateway.sh
-wget https://raw.githubusercontent.com/Nekolone/rut955_openwrt/main/curr_version
+mkdir /overlay/rut_wialon_gateway
+mkdir /tmp/RWG_app_buffer
 
+wget https://github.com/Nekolone/rut_wialon_gateway/raw/main/install/RWG_main_app
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/MODULE_custom.json
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/MODULE_MQTT.json
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/CFG_data_processing_service.json
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/APP_PATHS.json
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/MODULES_LIST.json
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/CFG_wialon_client.json
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/r_w_g_service_controller
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/RWG_app_controller.sh
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/RWG_app_restarter.sh
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/install/RWG_buff_remover.sh
+wget https://raw.githubusercontent.com/Nekolone/rut_wialon_gateway/main/curr_version
 
-chmod +x rut_wialon_gateway
-mv ./rut_wialon_gateway /etc/init.d/rut_wialon_gateway
+mv ./MODULE_custom.json /overlay/rut_wialon_gateway/MODULE_custom.json
+mv ./MODULE_MQTT.json /overlay/rut_wialon_gateway/MODULE_MQTT.json
+mv ./CFG_data_processing_service.json /overlay/rut_wialon_gateway/CFG_data_processing_service.json
+mv ./APP_PATHS.json /overlay/rut_wialon_gateway/APP_PATHS.json
+mv ./MODULES_LIST.json /overlay/rut_wialon_gateway/MODULES_LIST.json
+mv ./CFG_wialon_client.json /overlay/rut_wialon_gateway/CFG_wialon_client.json
 
-chmod +x main_app
-mv ./main_app /overlay/wialon_rut955_gateway/rut_wialon_gateway_app
+chmod +x RWG_main_app
+mv ./RWG_main_app /overlay/rut_wialon_gateway/RWG_main_app
 
-mv ./module_custom_config.json /overlay/wialon_rut955_gateway/module_custom_config.json
-mv ./module_mqtt_config.json /overlay/wialon_rut955_gateway/module_mqtt_config.json
-mv ./rut_data_processing_service_config.json /overlay/wialon_rut955_gateway/rut_data_processing_service_config.json
-mv ./rut_gateway_config_paths.json /overlay/wialon_rut955_gateway/rut_gateway_config_paths.json
-mv ./rut_modules_config.json /overlay/wialon_rut955_gateway/rut_modules_config.json
-mv ./rut_wialon_client_config.json /overlay/wialon_rut955_gateway/rut_wialon_client_config.json
+chmod +x r_w_g_service_controller
+mv ./r_w_g_service_controller /etc/init.d/r_w_g_service_controller
 
-chmod +x rut_wialon_gateway.sh
-mv ./rut_wialon_gateway.sh /overlay/wialon_rut955_gateway/rut_wialon_gateway.sh
+chmod +x RWG_buff_remover.sh
+mv ./RWG_buff_remover.sh /overlay/rut_wialon_gateway/RWG_buff_remover.sh
 
-mv ./curr_version /overlay/wialon_rut955_gateway/curr_version
+chmod +x RWG_app_controller.sh
+mv ./RWG_app_controller.sh /overlay/rut_wialon_gateway/RWG_app_controller.sh
+
+chmod +x RWG_app_restarter.sh
+mv ./RWG_app_restarter.sh /overlay/rut_wialon_gateway/RWG_app_restarter.sh
+
+mv ./curr_version /overlay/rut_wialon_gateway/curr_version
