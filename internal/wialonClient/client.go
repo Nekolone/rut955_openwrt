@@ -28,13 +28,16 @@ func Start(dataChan chan string, conf *Config) {
 	log.Print("Wialon Client start")
 	networkStatus := "start" // var that describes the state of the connection
 	clientConnection, tcpAddr := ConnectToServer(conf, &networkStatus)
-	defer clientConnection.Close()
+	defer func() {
+		if clientConnection != nil {
+			clientConnection.Close()
+		}
+	}()
 
 	log.Print("Wialon Client routines start")
 	done := make(chan string)
 	go ReconnectingService(conf, &tcpAddr, &clientConnection, &networkStatus, done)
 	go DataWorker(conf, &clientConnection, &networkStatus, dataChan, done)
-
 
 	log.Print("Wialon Client wait for routines")
 	if d := <-done; true {
@@ -96,7 +99,9 @@ func DataWorker(conf *Config, clientConnection **net.TCPConn, networkStatus *str
 		}
 		done <- "module restart"
 		*networkStatus = "RESTART"
-		_ = (*clientConnection).Close()
+		if *clientConnection != nil {
+			_ = (*clientConnection).Close()
+		}
 	}()
 	log.Println("DataWorker start")
 
@@ -104,12 +109,12 @@ func DataWorker(conf *Config, clientConnection **net.TCPConn, networkStatus *str
 		data := <-dataChan
 		switch *networkStatus {
 		case "online":
-			sendData(data, *clientConnection, networkStatus, conf.DataBufferPath)
+			sendData(data, clientConnection, networkStatus, conf.DataBufferPath)
 		case "buffering":
 			saveToBuffer(data, conf.DataBufferPath)
 		case "postBuffering":
-			sendBufferData(*clientConnection, networkStatus, conf.DataBufferPath)
-			sendData(data, *clientConnection, networkStatus, conf.DataBufferPath)
+			sendBufferData(clientConnection, networkStatus, conf.DataBufferPath)
+			sendData(data, clientConnection, networkStatus, conf.DataBufferPath)
 		case "stop":
 			log.Println("client service stop")
 			return

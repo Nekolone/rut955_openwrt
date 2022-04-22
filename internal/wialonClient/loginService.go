@@ -15,7 +15,6 @@ func login(clientConnection *net.TCPConn, id string, pass string) (answer string
 				_ = clientConnection.Close()
 			}
 			answer = fmt.Sprint(r)
-			return
 		}
 	}()
 	serverReader := bufio.NewReader(clientConnection)

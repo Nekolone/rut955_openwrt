@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func sendData(data string, clientConnection *net.TCPConn, networkStatus *string, bufferPath string) {
+func sendData(data string, clientConnection **net.TCPConn, networkStatus *string, bufferPath string) {
 	switch *networkStatus {
 	case "buffering":
 		saveToBuffer(data, bufferPath)
@@ -21,20 +21,20 @@ func sendData(data string, clientConnection *net.TCPConn, networkStatus *string,
 	}
 }
 
-func send(data string, clientConnection *net.TCPConn, networkStatus *string) (answer string) {
+func send(data string, clientConnection **net.TCPConn, networkStatus *string) (answer string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("Send panic. Recover msg > %v", r)
 			log.Print("networkStatus -> buffering")
 			*networkStatus = "buffering"
-			log.Printf("%v", clientConnection)
-			if clientConnection != nil {
-				clientConnection.Close()
+			log.Printf("%v", *clientConnection)
+			if *clientConnection != nil {
+				(*clientConnection).Close()
 			}
 			answer = fmt.Sprint(r)
 		}
 	}()
-	serverReader := bufio.NewReader(clientConnection)
+	serverReader := bufio.NewReader(*clientConnection)
 	timer := time.NewTimer(time.Second * 90)
 	result := make(chan string)
 	defer func() {
@@ -45,7 +45,7 @@ func send(data string, clientConnection *net.TCPConn, networkStatus *string) (an
 	}()
 	log.Print("Send to server")
 	for i := 1; i < 5; i++ {
-		if _, err := clientConnection.Write([]byte(data + "\r\n")); err != nil {
+		if _, err := (*clientConnection).Write([]byte(data + "\r\n")); err != nil {
 			log.Panicf("Write to server failed: %v", err.Error())
 		}
 
