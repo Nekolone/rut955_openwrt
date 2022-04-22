@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"net"
 )
 
 func main() {
@@ -13,10 +14,13 @@ func main() {
 }
 
 func testF() (answer string) {
+	var clientConnection *net.TCPConn
 	defer func() {
 		if r := recover(); r != nil {
 			log.Print("networkStatus -> buffering")
 			answer = fmt.Sprint(r)
+			clientConnection.Close()
+
 		}
 	}()
 

@@ -30,6 +30,7 @@ func send(data string, clientConnection *net.TCPConn, networkStatus *string) (an
 			if err := clientConnection.Close(); err != nil {
 				log.Print("cant close connection (already closed)")
 			}
+			log.Print("aftert_ close")
 			answer = fmt.Sprint(r)
 		}
 	}()
@@ -48,7 +49,7 @@ func send(data string, clientConnection *net.TCPConn, networkStatus *string) (an
 			log.Panicf("Write to server failed: %v", err.Error())
 		}
 
-		timer = time.NewTimer(time.Second * 90)
+		timer = time.NewTimer(time.Second * 20)
 
 		go func() {
 			serverResponse, err := serverReader.ReadString('\n')
