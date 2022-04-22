@@ -27,10 +27,10 @@ func send(data string, clientConnection *net.TCPConn, networkStatus *string) (an
 			log.Printf("Send panic. Recover msg > %v", r)
 			log.Print("networkStatus -> buffering")
 			*networkStatus = "buffering"
-			if err := clientConnection.Close(); err != nil {
-				log.Print("cant close connection (already closed)")
+			log.Printf("%v", clientConnection)
+			if clientConnection != nil {
+				clientConnection.Close()
 			}
-			log.Print("aftert_ close")
 			answer = fmt.Sprint(r)
 		}
 	}()

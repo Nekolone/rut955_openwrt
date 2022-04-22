@@ -10,8 +10,10 @@ import (
 
 func login(clientConnection *net.TCPConn, id string, pass string) (answer string) {
 	defer func() {
-	    if r := recover(); r != nil {
-			_ = clientConnection.Close()
+		if r := recover(); r != nil {
+			if clientConnection != nil {
+				_ = clientConnection.Close()
+			}
 			answer = fmt.Sprint(r)
 			return
 		}
@@ -55,7 +57,7 @@ func login(clientConnection *net.TCPConn, id string, pass string) (answer string
 			log.Print("timeout")
 		}
 	}
-	log.Panicf("close connection\nlogin error. Wrong login or pass:%v %v",id, pass)
+	log.Panicf("close connection\nlogin error. Wrong login or pass:%v %v", id, pass)
 	return
 }
 
