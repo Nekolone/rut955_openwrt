@@ -19,6 +19,7 @@ func ReconnectingService(conf *Config, tcpAddr **net.TCPAddr, clientConnection *
 	var err error
 	for range recTimer.C {
 		if *networkStatus == "RESTART" {
+			log.Printf("!!!RESTARTING!!!")
 			return
 		}
 		if *networkStatus != "buffering" {

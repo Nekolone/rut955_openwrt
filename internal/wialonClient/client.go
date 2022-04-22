@@ -93,25 +93,19 @@ func ConnectToServer(conf *Config, networkStatus *string) (clientConnection *net
 }
 
 func DataWorker(conf *Config, clientConnection **net.TCPConn, networkStatus *string, dataChan chan string, done chan string) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf("close connection error %v", r)
-		}
-	}()
+
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("Recovered in f > %v", r)
 		}
 		done <- "module restart"
 		*networkStatus = "RESTART"
-		if *clientConnection != nil {
-			_ = (*clientConnection).Close()
-		}
 	}()
 	log.Println("DataWorker start")
 
 	for {
 		data := <-dataChan
+		log.Print(*networkStatus)
 		switch *networkStatus {
 		case "online":
 			sendData(data, clientConnection, networkStatus, conf.DataBufferPath)

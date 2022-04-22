@@ -11,11 +11,6 @@ import (
 func login(clientConnection **net.TCPConn, id string, pass string) (answer string) {
 	defer func() {
 		if r := recover(); r != nil {
-			log.Printf("close connection error %v", r)
-		}
-	}()
-	defer func() {
-		if r := recover(); r != nil {
 			log.Printf("Recover in f > %v", r)
 			answer = fmt.Sprint(r)
 		}
