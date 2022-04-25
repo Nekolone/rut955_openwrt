@@ -33,19 +33,7 @@ func main() {
 func testF(clientConnection *net.Conn) *net.Conn {
 	defer func() {
 		if r := recover(); r!=nil{
-			if (*clientConnection) == nil{
-				_ = (*clientConnection).Close()
-				log.Print("close")
-				_ = (*clientConnection).Close()
-				log.Print("close")
-				_ = (*clientConnection).Close()
-				log.Print("close")
-				_ = (*clientConnection).Close()
-				log.Print("close")
-				_ = (*clientConnection).Close()
-				log.Print("close")
-			}
-			log.Print("saved")
+
 		}
 	}()
 

@@ -36,6 +36,12 @@ func login(clientConnection *net.Conn, id string, pass string) (answer string) {
 		timer = time.NewTimer(time.Second * 30)
 
 		go func() {
+			defer func() {
+			    if r := recover(); r != nil {
+			        log.Printf("RECOVER > %v", r)
+			        
+			    }
+			}()
 			serverResponse, err := serverReader.ReadString('\n')
 			if err != nil {
 				result <- fmt.Sprintf("msg:%s error: %v\n", serverResponse, err)

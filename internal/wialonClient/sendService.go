@@ -43,7 +43,6 @@ func send(data string, clientConnection *net.Conn, networkStatus *string) (answe
 		}
 		close(result)
 	}()
-	log.Print("Send to server")
 	for i := 1; i < 5; i++ {
 		if _, err := (*clientConnection).Write([]byte(data + "\r\n")); err != nil {
 			if *clientConnection != nil {
@@ -55,6 +54,11 @@ func send(data string, clientConnection *net.Conn, networkStatus *string) (answe
 		timer = time.NewTimer(time.Second * 20)
 
 		go func() {
+			defer func() {
+			    if r := recover(); r != nil {
+			        log.Printf("Recover > %v", r)
+			    }
+			}()
 			serverResponse, err := serverReader.ReadString('\n')
 			if err != nil {
 				result <- fmt.Sprintf("msg:%s error: %v\n", serverResponse, err)
@@ -91,6 +95,7 @@ func send(data string, clientConnection *net.Conn, networkStatus *string) (answe
 	log.Panicf("send error")
 	return
 }
+
 
 func reactToResponse(response string) string {
 	switch response {
