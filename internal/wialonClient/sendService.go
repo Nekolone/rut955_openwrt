@@ -15,6 +15,7 @@ func sendData(data string, clientConnection *net.Conn, networkStatus *string, bu
 	case "online":
 		if send(data, clientConnection, networkStatus) != "success" {
 			saveToBuffer(data, bufferPath)
+			return
 		}
 	default:
 		log.Printf("unexpected error, sendData postBUffering stage (impossible) %s", *networkStatus)

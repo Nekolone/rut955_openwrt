@@ -66,8 +66,8 @@ func saveToBuffer(data string, bufferPath string) {
 		}
 	}
 	defer fileHandler.Close()
-	log.Print("Save to buffer")
 	_, _ = fileHandler.WriteString(data + "\n")
+	log.Print("Saved to buffer")
 }
 
 func deleteOldBuffer(newBufferPath string, bufferPath string) {

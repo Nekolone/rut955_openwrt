@@ -110,6 +110,10 @@ func DataWorker(conf *Config, clientConnection *net.Conn, networkStatus *string,
 
 	for {
 		data := <-dataChan
+		log.Print(*networkStatus)
+		log.Print(clientConnection)
+		log.Print(*clientConnection)
+		log.Print(data)
 		switch *networkStatus {
 		case "online":
 			sendData(data, clientConnection, networkStatus, conf.DataBufferPath)

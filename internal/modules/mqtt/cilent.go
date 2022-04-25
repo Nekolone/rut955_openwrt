@@ -98,7 +98,7 @@ func getValueFromJSON(dataFormat DataFormat, payload []byte) string {
 	}
 	res := make(map[string]interface{})
 	Flatten2("", data, res)
-	if res[dataFormat.DataTypeField] == "" {
+	if res[dataFormat.DataTypeField] == "" || res[dataFormat.DataTypeField] == nil {
 		res[dataFormat.DataTypeField] = 3
 	}
 
