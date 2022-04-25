@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [[ -d "/tmp/RWG_app_buffer" ]]; then
+if ! [[ -d "/tmp/RWG_app_buffer" ]]; then
   mkdir /tmp/RWG_app_buffer
 fi
 

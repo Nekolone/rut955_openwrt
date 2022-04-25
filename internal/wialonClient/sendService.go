@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func sendData(data string, clientConnection **net.TCPConn, networkStatus *string, bufferPath string) {
+func sendData(data string, clientConnection *net.Conn, networkStatus *string, bufferPath string) {
 	switch *networkStatus {
 	case "buffering":
 		saveToBuffer(data, bufferPath)
@@ -21,10 +21,13 @@ func sendData(data string, clientConnection **net.TCPConn, networkStatus *string
 	}
 }
 
-func send(data string, clientConnection **net.TCPConn, networkStatus *string) (answer string) {
+func send(data string, clientConnection *net.Conn, networkStatus *string) (answer string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("Send panic. Recover msg > %v", r)
+			if *clientConnection != nil {
+				_ = (*clientConnection).Close()
+			}
 			log.Print("networkStatus -> buffering")
 			*networkStatus = "buffering"
 			answer = fmt.Sprint(r)

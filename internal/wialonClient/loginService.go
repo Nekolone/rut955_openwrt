@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func login(clientConnection **net.TCPConn, id string, pass string) (answer string) {
+func login(clientConnection *net.Conn, id string, pass string) (answer string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("Recover in f > %v", r)

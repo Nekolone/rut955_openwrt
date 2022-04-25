@@ -15,23 +15,41 @@ func main() {
 	go func() {
 		_, _ = serverConnection.Accept()
 	}()
-	tcpAddr, err := net.ResolveTCPAddr("tcp", "127.0.0.1:9000")
-	clientConnection, _ := net.DialTCP("tcp", nil, tcpAddr)
-	// clientConnection, err := net.Dial("tcp", "127.0.0.1:9000")
+	//tcpAddr, err := net.ResolveTCPAddr("tcp", "123.0.0.1:9000")
+	//clientConnection, _ := net.DialTCP("tcp", nil, tcpAddr)
+	var nilCOn net.Conn
+	nilCOn = nil
+	clientConnection, err := net.Dial("tcp", "127.0.0.1:9000")
 	log.Print(err)
+	log.Print(&err)
+	log.Print(clientConnection)
 
 	log.Println("test")
-	log.Print(testF(&clientConnection))
+	log.Print(testF(&nilCOn))
 	log.Println("succ")
 
 }
 
-func testF(clientConnection **net.TCPConn) (answer string) {
+func testF(clientConnection *net.Conn) *net.Conn {
 	defer func() {
-		_ = (*clientConnection).Close().Error()
+		if r := recover(); r!=nil{
+			if (*clientConnection) == nil{
+				_ = (*clientConnection).Close()
+				log.Print("close")
+				_ = (*clientConnection).Close()
+				log.Print("close")
+				_ = (*clientConnection).Close()
+				log.Print("close")
+				_ = (*clientConnection).Close()
+				log.Print("close")
+				_ = (*clientConnection).Close()
+				log.Print("close")
+			}
+			log.Print("saved")
+		}
 	}()
 
 	log.Print(1)
-	// log.Panicf("panicEND")
-	return
+	log.Panicf("HIHIHAHA")
+	return clientConnection
 }

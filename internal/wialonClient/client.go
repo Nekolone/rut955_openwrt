@@ -27,17 +27,17 @@ func Start(dataChan chan string, conf *Config) {
 	}()
 	log.Print("Wialon Client start")
 	networkStatus := "start" // var that describes the state of the connection
-	clientConnection, tcpAddr := ConnectToServer(conf, &networkStatus)
+	clientConnection, addr := ConnectToServer(conf, &networkStatus)
 	defer func() {
-		if clientConnection != nil {
-			_ = clientConnection.Close()
+		if *clientConnection != nil {
+			_ = (*clientConnection).Close()
 		}
 	}()
 
 	log.Print("Wialon Client routines start")
 	done := make(chan string)
-	go ReconnectingService(conf, &tcpAddr, &clientConnection, &networkStatus, done)
-	go DataWorker(conf, &clientConnection, &networkStatus, dataChan, done)
+	go ReconnectingService(conf, addr, clientConnection, &networkStatus, done)
+	go DataWorker(conf, clientConnection, &networkStatus, dataChan, done)
 
 	log.Print("Wialon Client wait for routines")
 	if d := <-done; true {
@@ -55,7 +55,7 @@ func Start(dataChan chan string, conf *Config) {
 	}
 }
 
-func ConnectToServer(conf *Config, networkStatus *string) (clientConnection *net.TCPConn, tcpAddr *net.TCPAddr) {
+func ConnectToServer(conf *Config, networkStatus *string) (con *net.Conn, addr string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("First connection error. Save all data into buffer file. err msg > %v", r)
@@ -66,24 +66,29 @@ func ConnectToServer(conf *Config, networkStatus *string) (clientConnection *net
 			log.Print("networkStatus -> buffering")
 		}
 	}()
-
-	log.Printf("resolving tcp addr %v", conf.WialonServerAddress)
-	var err error
-	if tcpAddr, err = net.ResolveTCPAddr(conf.ConnectionType, conf.WialonServerAddress); err != nil {
-		log.Panicf("FATAL : cant resolve tcp addr > %v", err)
-	}
-	log.Print("resolving successfully")
+	addr = conf.WialonServerAddress
+	var nilCon net.Conn
+	nilCon = nil
+	//log.Printf("resolving tcp addr %v", conf.WialonServerAddress)
+	//if tcpAddr, err = net.ResolveTCPAddr(conf.ConnectionType, conf.WialonServerAddress); err != nil {
+	//	log.Panicf("FATAL : cant resolve tcp addr > %v", err)
+	//}
+	//log.Print("resolving successfully")
 
 	log.Print("connecting to wialon server")
-	if clientConnection, err = net.DialTCP(conf.ConnectionType, nil, tcpAddr); err != nil {
+	clientConnection, err := net.Dial(conf.ConnectionType, conf.WialonServerAddress)
+	if err != nil {
+		con = &nilCon
 		log.Panicf("dial error %v", err)
 	}
 	log.Print("connecting successfully")
 
 	log.Print("login to wialon server")
 	if answer := login(&clientConnection, conf.Login, conf.Password); answer != "" {
+		con = &nilCon
 		log.Panicf(answer)
 	}
+	con = &clientConnection
 	log.Print("login successfully")
 
 	log.Print("check buffer file and start data sharing")
@@ -92,20 +97,19 @@ func ConnectToServer(conf *Config, networkStatus *string) (clientConnection *net
 	return
 }
 
-func DataWorker(conf *Config, clientConnection **net.TCPConn, networkStatus *string, dataChan chan string, done chan string) {
-
+func DataWorker(conf *Config, clientConnection *net.Conn, networkStatus *string, dataChan chan string, done chan string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("Recovered in f > %v", r)
 		}
 		done <- "module restart"
 		*networkStatus = "RESTART"
+
 	}()
 	log.Println("DataWorker start")
 
 	for {
 		data := <-dataChan
-		log.Print(*networkStatus)
 		switch *networkStatus {
 		case "online":
 			sendData(data, clientConnection, networkStatus, conf.DataBufferPath)

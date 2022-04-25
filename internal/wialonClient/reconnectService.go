@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func ReconnectingService(conf *Config, tcpAddr **net.TCPAddr, clientConnection **net.TCPConn, networkStatus *string, done chan string) {
+func ReconnectingService(conf *Config, tcpAddr string, clientConnection *net.Conn, networkStatus *string, done chan string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("Recovered in f > %v", r)
@@ -26,7 +26,7 @@ func ReconnectingService(conf *Config, tcpAddr **net.TCPAddr, clientConnection *
 			continue
 		}
 		log.Print("reconnecting to wialon server")
-		*clientConnection, err = net.DialTCP(conf.ConnectionType, nil, *tcpAddr)
+		*clientConnection, err = net.Dial(conf.ConnectionType, tcpAddr)
 		if err != nil {
 			log.Printf("Reconnecting failed: %v", err.Error())
 			continue

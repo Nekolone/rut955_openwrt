@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func sendBufferData(clientConnection **net.TCPConn, networkStatus *string, bufferPath string) {
+func sendBufferData(clientConnection *net.Conn, networkStatus *string, bufferPath string) {
 	log.Print("Send data from buffer file")
 	fileHandler, err := os.OpenFile(bufferPath, os.O_RDONLY, os.ModePerm)
 	if err != nil {
