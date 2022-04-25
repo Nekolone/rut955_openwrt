@@ -8,7 +8,7 @@ while :; do
   sleep 12h
 
   buf_sz=$(wc -c $buf_f | awk '{print $1}')
-  if [[ -$buf_sz -ge 1000000 ]]; then
+  if [[ -$buf_sz -ge 10000000 ]]; then
     rm $buf_f
   fi
 
