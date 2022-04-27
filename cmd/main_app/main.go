@@ -173,9 +173,12 @@ func setDefaultDPSModulesConfig() *dataProcessingService.ModulesConfig {
 func setDefaultDataProcessingServiceConfig() *dataProcessingService.Config {
 	return &dataProcessingService.Config{
 		DataSourceChannelSize: 1000,
-		TickerTime:            10,
+		TickerDefTime:         10,
+		SpeedCoefficient:      0.2,
+		CourseDiffTrigger:     10,
 	}
 }
+
 
 func setDefaultWialonClientConfig() *wialonClient.Config {
 	return &wialonClient.Config{

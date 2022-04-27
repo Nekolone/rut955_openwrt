@@ -86,6 +86,17 @@ func getCourse() string {
 	return fmt.Sprintf("%.0f", fltOut)
 }
 
+func getCourseInt() int {
+	out, err := exec.Command("gpsctl", "-g").Output()
+	if (err != nil) || (len(out) == 0) {
+		return 0
+	}
+
+	strOut := strings.ReplaceAll(string(out), "\n", "")
+	fltOut, _ := strconv.ParseFloat(strOut, 64)
+	return int(fltOut)
+}
+
 func getSpeed() string {
 	out, err := exec.Command("gpsctl", "-v").Output()
 	if (err != nil) || (len(out) == 0) {
@@ -95,6 +106,17 @@ func getSpeed() string {
 	strOut := strings.ReplaceAll(string(out), "\n", "")
 	fltOut, _ := strconv.ParseFloat(strOut, 64)
 	return fmt.Sprintf("%.0f", fltOut)
+}
+
+func getSpeedF64() float64 {
+	out, err := exec.Command("gpsctl", "-v").Output()
+	if (err != nil) || (len(out) == 0) {
+		return 0
+	}
+
+	strOut := strings.ReplaceAll(string(out), "\n", "")
+	fltOut, _ := strconv.ParseFloat(strOut, 64)
+	return fltOut
 }
 
 func getLat() string {

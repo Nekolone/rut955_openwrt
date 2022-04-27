@@ -16,8 +16,10 @@ import (
 //}
 
 type Config struct {
-	DataSourceChannelSize int `json:"data_source_channel_size"`
-	TickerTime            int `json:"ticker_time"`
+	DataSourceChannelSize int     `json:"data_source_channel_size"`
+	TickerDefTime         int     `json:"ticker_def_time"`
+	SpeedCoefficient      float64 `json:"speed_coefficient"`
+	CourseDiffTrigger     int     `json:"course_diff_trigger"`
 }
 
 type Module struct {
@@ -56,9 +58,24 @@ func (config *Config) dataToWialonModule(dataChan, dataSourceChan, done chan str
 		}
 		done <- "dataToWialonModule for timer down"
 	}()
-	for range time.NewTicker(time.Second * time.Duration(config.TickerTime)).C {
+	for {
+		sendTimer(time.Now(), float64(config.TickerDefTime), config.SpeedCoefficient, getCourseInt(), config.CourseDiffTrigger)
 		sendToDataChan(dataChan, dataSourceChan)
 	}
+}
+
+func sendTimer(startTime time.Time, rate float64, speedCoef float64, startCourse int, courseDiffTrigger int) {
+	defFinishTime := startTime.Add(time.Duration(rate/(1.0+(getSpeedF64()*speedCoef))) * time.Second)
+	for defFinishTime.After(time.Now()) && diff(startCourse, getCourseInt()) < courseDiffTrigger {
+		time.Sleep(time.Duration(1000/(1+getSpeedF64()*speedCoef)) * time.Millisecond)
+	}
+}
+
+func diff(a, b int) int {
+	if a < b {
+		return b - a
+	}
+	return a - b
 }
 
 func sendToDataChan(dataChan, dataSourceChan chan string) {

@@ -14,7 +14,7 @@ while :; do
 
   log_sz=$(wc -c $log_f | awk '{print $1}')
   if [[ -$log_sz -ge 1000000 ]]; then
-    rm $log_f
+    > $log_f
   fi
 
 done
