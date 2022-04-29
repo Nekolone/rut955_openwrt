@@ -59,15 +59,18 @@ func (config *Config) dataToWialonModule(dataChan, dataSourceChan, done chan str
 		done <- "dataToWialonModule for timer down"
 	}()
 	for {
+		log.Print("sendToDataChan >1")
 		sendTimer(time.Now(), float64(config.TickerDefTime), config.SpeedCoefficient, getCourseInt(), config.CourseDiffTrigger)
+		log.Print("sendToDataChan >2")
 		sendToDataChan(dataChan, dataSourceChan)
+		log.Print("sendToDataChan >3")
 	}
 }
 
 func sendTimer(startTime time.Time, rate float64, speedCoef float64, startCourse int, courseDiffTrigger int) {
 	defFinishTime := startTime.Add(time.Duration(rate/(1.0+(getSpeedF64()*speedCoef))) * time.Second)
 	for defFinishTime.After(time.Now()) && diff(startCourse, getCourseInt()) < courseDiffTrigger {
-		time.Sleep(time.Duration(1000/(1+getSpeedF64()*speedCoef)) * time.Millisecond)
+		time.Sleep(time.Duration(500/(1+getSpeedF64()*speedCoef)) * time.Millisecond)
 	}
 }
 
