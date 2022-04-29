@@ -1,6 +1,6 @@
 {
   "data_source_channel_size": 1000,
-  "ticker_def_time": 5,
+  "ticker_def_time": 30,
   "speed_coefficient": 20,
   "course_diff_trigger": 10
 }

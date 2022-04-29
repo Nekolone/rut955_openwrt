@@ -17,8 +17,8 @@ import (
 
 type Config struct {
 	DataSourceChannelSize int `json:"data_source_channel_size"`
-	TickerDefTime         int `json:"ticker_def_time"`
-	SpeedCoefficient      int `json:"speed_coefficient"`
+	TickerDefTime         float64 `json:"ticker_def_time"`
+	SpeedCoefficient      float64 `json:"speed_coefficient"`
 	CourseDiffTrigger     int `json:"course_diff_trigger"`
 }
 
@@ -60,14 +60,14 @@ func (config *Config) dataToWialonModule(dataChan, dataSourceChan, done chan str
 	}()
 	for {
 		log.Printf("sendToDataChan >1%v\n",config)
-		sendTimer(time.Now(), float64(config.TickerDefTime), config.SpeedCoefficient, getCourseInt(), config.CourseDiffTrigger)
+		sendTimer(time.Now(), config.TickerDefTime, config.SpeedCoefficient, getCourseInt(), config.CourseDiffTrigger)
 		log.Print("sendToDataChan >2")
 		sendToDataChan(dataChan, dataSourceChan)
 		log.Print("sendToDataChan >3")
 	}
 }
 
-func sendTimer(startTime time.Time, rate float64, speedCoef int, startCourse int, courseDiffTrigger int) {
+func sendTimer(startTime time.Time, rate float64, speedCoef float64, startCourse int, courseDiffTrigger int) {
 	defFinishTime := startTime.Add(time.Duration(rate/(1.0+(getSpeedF64()*float64(speedCoef)*0.01))) * time.Second)
 	for defFinishTime.After(time.Now()) && diff(startCourse, getCourseInt()) < courseDiffTrigger {
 		time.Sleep(time.Duration(500/(1+getSpeedF64()*float64(speedCoef)*0.01)) * time.Millisecond)

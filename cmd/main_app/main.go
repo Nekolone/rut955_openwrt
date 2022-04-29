@@ -156,8 +156,6 @@ func getDPSModulesConfig(path string) (cfg *dataProcessingService.ModulesConfig)
 
 func getDPSConfig(path string) (cfg *dataProcessingService.Config) {
 	cfg = setDefaultDataProcessingServiceConfig()
-	log.Print("dps")
-	log.Print(cfg)
 	configFile, err := os.Open(path)
 	if err != nil {
 		log.Printf("Using defaults. Bad config path : %v", path)
@@ -166,16 +164,11 @@ func getDPSConfig(path string) (cfg *dataProcessingService.Config) {
 	defer configFile.Close()
 	v := json.NewDecoder(configFile)
 	_ = v.Decode(cfg)
-	log.Print(cfg)
-
 	return
 }
 
 func getWialonConfig(path string) (cfg *wialonClient.Config) {
 	cfg = setDefaultWialonClientConfig()
-	log.Print("wialon")
-	log.Print(cfg)
-	//_ = getConfig(path).Decode(cfg)
 	configFile, err := os.Open(path)
 	if err != nil {
 		log.Printf("Using defaults. Bad config path : %v", path)
@@ -184,8 +177,6 @@ func getWialonConfig(path string) (cfg *wialonClient.Config) {
 	defer configFile.Close()
 	v := json.NewDecoder(configFile)
 	_ = v.Decode(cfg)
-	log.Print(cfg)
-
 	return
 }
 
