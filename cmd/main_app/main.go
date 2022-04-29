@@ -174,7 +174,7 @@ func setDefaultDataProcessingServiceConfig() *dataProcessingService.Config {
 	return &dataProcessingService.Config{
 		DataSourceChannelSize: 1000,
 		TickerDefTime:         10,
-		SpeedCoefficient:      0.2,
+		SpeedCoefficient:      20,
 		CourseDiffTrigger:     10,
 	}
 }
