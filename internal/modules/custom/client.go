@@ -82,7 +82,14 @@ func setDefaultCustomConfig() *Custom {
 
 func getCustomConfig(path string) (cfg *Custom) {
 	cfg = setDefaultCustomConfig()
-	_ = getConfig(path).Decode(&cfg)
+	configFile, err := os.Open(path)
+	if err != nil {
+		log.Printf("Using defaults. Bad config path : %v", path)
+		return nil
+	}
+	defer configFile.Close()
+	v := json.NewDecoder(configFile)
+	_ = v.Decode(cfg)
 	return
 }
 

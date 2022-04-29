@@ -131,7 +131,14 @@ func Flatten2(prefix string, src map[string]interface{}, dest map[string]interfa
 
 func getMqttConfig(path string) (cfg *Clients) {
 	cfg = setDefaultMqttConfig()
-	_ = getConfig(path).Decode(&cfg)
+	configFile, err := os.Open(path)
+	if err != nil {
+		log.Printf("Using defaults. Bad config path : %v", path)
+		return nil
+	}
+	defer configFile.Close()
+	v := json.NewDecoder(configFile)
+	_ = v.Decode(cfg)
 	return
 }
 

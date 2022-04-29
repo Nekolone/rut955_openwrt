@@ -119,7 +119,14 @@ func startWialonClient(dataChan chan string, wialonConfig *wialonClient.Config) 
 
 func getRutConfigPaths(path string) (cfg *RutPathsConfig) {
 	cfg = setDefaultRutGatewayConfig()
-	_ = (*getConfig(path)).Decode(&cfg)
+	configFile, err := os.Open(path)
+	if err != nil {
+		log.Printf("Using defaults. Bad config path : %v", path)
+		return nil
+	}
+	defer configFile.Close()
+	v := json.NewDecoder(configFile)
+	_ = v.Decode(cfg)
 	return
 }
 
@@ -136,21 +143,6 @@ func getRutConfig(paths *RutPathsConfig) (
 
 func getDPSModulesConfig(path string) (cfg *dataProcessingService.ModulesConfig) {
 	cfg = setDefaultDPSModulesConfig()
-	_ = (*getConfig(path)).Decode(&cfg)
-	return
-}
-
-func getDPSConfig(path string) (cfg *dataProcessingService.Config) {
-	cfg = setDefaultDataProcessingServiceConfig()
-	_ = (*getConfig(path)).Decode(&cfg)
-	return
-}
-
-func getWialonConfig(path string) (cfg *wialonClient.Config) {
-	log.Print(cfg)
-	cfg = setDefaultWialonClientConfig()
-	log.Print(cfg)
-	//_ = (*getConfig(path)).Decode(&cfg)
 	configFile, err := os.Open(path)
 	if err != nil {
 		log.Printf("Using defaults. Bad config path : %v", path)
@@ -159,12 +151,13 @@ func getWialonConfig(path string) (cfg *wialonClient.Config) {
 	defer configFile.Close()
 	v := json.NewDecoder(configFile)
 	_ = v.Decode(cfg)
-	log.Print(path)
-	log.Print(cfg)
 	return
 }
 
-func getConfig(path string) **json.Decoder {
+func getDPSConfig(path string) (cfg *dataProcessingService.Config) {
+	//cfg = setDefaultDataProcessingServiceConfig()
+	log.Print("dps")
+	log.Print(cfg)
 	configFile, err := os.Open(path)
 	if err != nil {
 		log.Printf("Using defaults. Bad config path : %v", path)
@@ -172,7 +165,38 @@ func getConfig(path string) **json.Decoder {
 	}
 	defer configFile.Close()
 	v := json.NewDecoder(configFile)
-	return &v
+	_ = v.Decode(cfg)
+	log.Print(cfg)
+
+	return
+}
+
+func getWialonConfig(path string) (cfg *wialonClient.Config) {
+	cfg = setDefaultWialonClientConfig()
+	log.Print("wialon")
+	log.Print(cfg)
+	_ = getConfig(path).Decode(cfg)
+	log.Print(cfg)
+	//configFile, err := os.Open(path)
+	//if err != nil {
+	//	log.Printf("Using defaults. Bad config path : %v", path)
+	//	return nil
+	//}
+	//defer configFile.Close()
+	//v := json.NewDecoder(configFile)
+	//_ = v.Decode(cfg)
+	return
+}
+
+func getConfig(path string) *json.Decoder {
+	configFile, err := os.Open(path)
+	if err != nil {
+		log.Printf("Using defaults. Bad config path : %v", path)
+		return nil
+	}
+	defer configFile.Close()
+	v := json.NewDecoder(configFile)
+	return v
 }
 
 func setDefaultDPSModulesConfig() *dataProcessingService.ModulesConfig {
