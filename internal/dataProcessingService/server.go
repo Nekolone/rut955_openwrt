@@ -59,11 +59,8 @@ func (config *Config) dataToWialonModule(dataChan, dataSourceChan, done chan str
 		done <- "dataToWialonModule for timer down"
 	}()
 	for {
-		log.Printf("sendToDataChan >1%v\n",config)
 		sendTimer(time.Now(), config.TickerDefTime, config.SpeedCoefficient, getCourseInt(), config.CourseDiffTrigger)
-		log.Print("sendToDataChan >2")
 		sendToDataChan(dataChan, dataSourceChan)
-		log.Print("sendToDataChan >3")
 	}
 }
 
