@@ -146,14 +146,15 @@ func getDPSConfig(path string) (cfg *dataProcessingService.Config) {
 	return
 }
 
-func getWialonConfig(path string) (cfg *wialonClient.Config) {
+func getWialonConfig(path string) (*wialonClient.Config) {
+	var cfg wialonClient.Config
 	log.Print(cfg)
 	//cfg = setDefaultWialonClientConfig()
 	log.Print(cfg)
-	_ = getConfig(path).Decode(cfg)
+	_ = getConfig(path).Decode(&cfg)
 	log.Print(path)
 	log.Print(cfg)
-	return
+	return &cfg
 }
 
 func getConfig(path string) *json.Decoder {
