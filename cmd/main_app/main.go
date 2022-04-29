@@ -150,7 +150,7 @@ func getWialonConfig(path string) (cfg *wialonClient.Config) {
 	log.Print(cfg)
 	//cfg = setDefaultWialonClientConfig()
 	log.Print(cfg)
-	_ = getConfig(path).Decode(&cfg)
+	_ = getConfig(path).Decode(cfg)
 	log.Print(path)
 	log.Print(cfg)
 	return
