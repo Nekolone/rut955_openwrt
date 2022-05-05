@@ -10,6 +10,17 @@
         "data_type_field": "type",
         "data_value_field":  "data_value"
       }
+    },
+    {
+      "ip_port": "192.168.100.102:1883",
+      "subscription_list":[
+        "#"
+      ],
+      "data_format": {
+        "data_name_field": "address",
+        "data_type_field": "type",
+        "data_value_field":  "value"
+      }
     }
   ]
 }

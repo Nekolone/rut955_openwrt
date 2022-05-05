@@ -25,7 +25,7 @@ var msgHandl MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
 func main() {
 	// create a ClientOptions struct setting the broker address, clientid, turn
 	// off trace output and set the default message handler
-	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.100.102:1883")
+	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.35.63:18883")
 	// opts.SetClientID("go-simple")
 	// opts.SetDefaultPublishHandler(f)
 
