@@ -66,8 +66,6 @@ func launch(path string) {
 	rutConfigPaths := getRutConfigPaths(path)
 	wialonClientConfig, dataPSConfig, dataPSModulesConfig := getRutConfig(rutConfigPaths)
 
-	log.Print(rutConfigPaths)
-
 	dataChan := make(chan string, rutConfigPaths.DataChannelSize) // main data channel. Link dps-wialonClient
 
 	log.Print("start main routines (threads)")
