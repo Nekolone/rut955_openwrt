@@ -112,7 +112,7 @@ func getValueFromJSON(dataFormat DataFormat, payload []byte, name string) map[st
 		name: {
 			getCurTime(),
 			fmt.Sprintf(
-				"%s|%s|%s",
+				"%v|%s|%v",
 				res[dataFormat.DataNameField],
 				dataType,
 				res[dataFormat.DataValueField],

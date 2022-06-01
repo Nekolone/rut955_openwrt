@@ -55,9 +55,9 @@ func send(data string, clientConnection *net.Conn, networkStatus *string) (answe
 
 		go func() {
 			defer func() {
-			    if r := recover(); r != nil {
-			        log.Printf("Recover > %v", r)
-			    }
+				if r := recover(); r != nil {
+					log.Printf("Recover > %v", r)
+				}
 			}()
 			serverResponse, err := serverReader.ReadString('\n')
 			if err != nil {
@@ -72,7 +72,7 @@ func send(data string, clientConnection *net.Conn, networkStatus *string) (answe
 			case "resend":
 				log.Print("resend data")
 			case "success":
-				log.Print("data successfully sent to server")
+				// log.Print("data successfully sent to server")
 				return "success"
 			case "#RESTART":
 				*networkStatus = "RESTART"
@@ -95,7 +95,6 @@ func send(data string, clientConnection *net.Conn, networkStatus *string) (answe
 	log.Panicf("send error")
 	return
 }
-
 
 func reactToResponse(response string) string {
 	switch response {

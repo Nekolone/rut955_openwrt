@@ -58,7 +58,7 @@ func (config *Config) dataToWialonModule(dataChan chan string, dataSourceChan ch
 		done <- "dataToWialonModule for timer down"
 	}()
 	for {
-		log.Print("w8 and try to send")
+		// log.Print("w8 and try to send")
 		sendTimer(time.Now(), config.TickerDefTime, config.SpeedCoefficient, getCourseInt(), config.CourseDiffTrigger)
 		sendToDataChan(dataChan, dataSourceChan)
 	}
@@ -90,7 +90,7 @@ func sendToDataChan(dataChan chan string, dataSourceChan chan map[string][]strin
 		paramsList = []string{"NA"}
 	}
 	dataChan <- convertDataToSend(dataType, attr, paramsList)
-	log.Print("gata send to wialon module correct")
+	// log.Print("gata send to wialon module correct")
 	// for
 	// for _, params := range paramsList {
 	// 	params = remove(params, "")
