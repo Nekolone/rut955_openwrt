@@ -1,30 +1,12 @@
 package main
 
-import "log"
+import (
+	"log"
+	"time"
+)
 
 func main() {
-	test := make(map[string][][]string)
-	test = map[string][][]string{
-		"mqtt_mod1": {
-			{"time", "data"},
-			{"time", "data"},
-			{"time", "data"},
-		},
-		"mqtt_mod2": {
-			{"time", "data"},
-			{"time", "data"},
-			{"time", "data"},
-		},
-	}
-	log.Print(test)
-	data := make(map[string][]string)
-	data = map[string][]string{
-		"mqtt_mod1": {"WAAAAAA", "AAAAAAAAAAW"},
-	}
-	for k := range data {
-		test[k] = append(test[k], data[k])
-	}
-	log.Print(test)
+	log.Print(time.Now().Format("2006-01-02 15:04:05.00"))
 
 }
 
