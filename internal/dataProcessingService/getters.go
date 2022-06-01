@@ -3,7 +3,6 @@ package dataProcessingService
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os/exec"
 	"strconv"
 	"strings"
@@ -31,13 +30,11 @@ func getDeviceData(dataSourceChan chan map[string][]string) (res []string) {
 	for {
 		select {
 		case data := <-dataSourceChan:
-			log.Print("start get")
 			for k := range data {
 				dataList[k] = append(dataList[k], data[k])
 			}
 			// dataSet.Add(data)
 		default:
-			log.Print("final get")
 			for k := range dataList {
 				// param := fmt.Sprintf("%v:string:%v", k, strings.Join(getParamData(dataList[k]),"%"))
 				res = append(res, fmt.Sprintf("%v:list:%v", k, strings.Join(getParamData(dataList[k]), "%")))
@@ -68,7 +65,6 @@ func getDateTime() string {
 	if err != nil || bytes.Equal(out, []byte("1970-01-01 02:00:00")) {
 		out = []byte(time.Now().Format("2006-01-02 15:04:05"))
 	}
-	log.Print("gata get correct")
 	return string(out[8:10]) + string(out[5:7]) + string(out[2:4]) + ";" + string(out[11:13]) + string(out[14:16]) + string(out[17:19])
 }
 

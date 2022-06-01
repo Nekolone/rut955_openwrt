@@ -1,7 +1,6 @@
 package dataProcessingService
 
 import (
-	"log"
 	"strings"
 )
 
@@ -9,7 +8,7 @@ func convertDataToSend(dataType string, attr []string, params []string) string {
 	if len(params) == 0 {
 		params = []string{"NA"}
 	}
-	log.Print("converter")
+	// log.Print("converter")
 	return "#" + dataType + "#" + strings.Join(attr, ";") + ";" + strings.Join(params, ",")
 }
 
