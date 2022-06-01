@@ -58,6 +58,7 @@ func (config *Config) dataToWialonModule(dataChan chan string, dataSourceChan ch
 		done <- "dataToWialonModule for timer down"
 	}()
 	for {
+		log.Print("w8 and try to send")
 		sendTimer(time.Now(), config.TickerDefTime, config.SpeedCoefficient, getCourseInt(), config.CourseDiffTrigger)
 		sendToDataChan(dataChan, dataSourceChan)
 	}
@@ -85,26 +86,27 @@ func sendToDataChan(dataChan chan string, dataSourceChan chan map[string][]strin
 		getOutputs(), getAdc(), getIbutton(),
 	}
 	dataType := "D"
+	if len(paramsList) == 0 {
+		paramsList = []string{"NA"}
+	}
 	dataChan <- convertDataToSend(dataType, attr, paramsList)
+	log.Print("gata send to wialon module correct")
 	// for
 	// for _, params := range paramsList {
 	// 	params = remove(params, "")
-	// 	if len(params) == 0 {
-	// 		params = []string{"NA"}
-	// 	}
 	// 	dataChan <- convertDataToSend(dataType, attr, params)
 }
 
 // }
 
-func remove(s []string, r string) []string {
-	for i, v := range s {
-		if v == r {
-			return remove(append(s[:i], s[i+1:]...), r)
-		}
-	}
-	return s
-}
+// func remove(s []string, r string) []string {
+// 	for i, v := range s {
+// 		if v == r {
+// 			return remove(append(s[:i], s[i+1:]...), r)
+// 		}
+// 	}
+// 	return s
+// }
 
 func (config *ModulesConfig) connectDataSourceModules(dataSourceChan chan map[string][]string) {
 	select {
