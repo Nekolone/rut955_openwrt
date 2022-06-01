@@ -1,12 +1,10 @@
 package mqtt
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 
 	"strconv"
 	"time"
@@ -129,11 +127,8 @@ func getValueFromJSON(dataFormat DataFormat, payload []byte, name string) map[st
 }
 
 func getCurTime() string {
-	out, err := exec.Command("gpsctl", "-e").Output()
-	if err != nil || bytes.Equal(out, []byte("1970-01-01 02:00:00")) {
-		out = []byte(time.Now().Format("2006-01-02 15:04:05"))
-	}
-	return string(out[8:10]) + string(out[5:7]) + string(out[2:4]) + string(out[11:13]) + string(out[14:16]) + string(out[17:19])
+	out := []byte(time.Now().Format("2006-01-02 15:04:05:000000"))
+	return string(out[8:10]) + string(out[5:7]) + string(out[2:4]) + string(out[11:13]) + string(out[14:16]) + string(out[17:19]) + string(out[20:26])
 }
 
 func Flatten2(prefix string, src map[string]interface{}, dest map[string]interface{}) {
