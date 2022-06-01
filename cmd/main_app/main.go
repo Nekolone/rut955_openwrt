@@ -91,7 +91,7 @@ func launch(path string) {
 			}
 		}()
 		defer wg.Done()
-		dataSourceChan := make(chan string, dataPSConfig.DataSourceChannelSize) // sub data channel. Link dataSources-converter
+		dataSourceChan := make(chan map[string][]string, dataPSConfig.DataSourceChannelSize) // sub data channel. Link dataSources-converter
 		for {
 			startDataProcessingService(dataChan, dataPSConfig, dataPSModulesConfig, dataSourceChan)
 			time.Sleep(10 * time.Second)
@@ -106,7 +106,7 @@ func startDataProcessingService(
 	dataChan chan string,
 	dataPSConfig *dataProcessingService.Config,
 	dataPSModulesConfig *dataProcessingService.ModulesConfig,
-	dataSourceChan chan string,
+	dataSourceChan chan map[string][]string,
 ) {
 	dataProcessingService.Start(dataChan, dataPSConfig, dataPSModulesConfig, dataSourceChan)
 }

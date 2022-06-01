@@ -1,13 +1,17 @@
 package mqtt
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"log"
 	"os"
+	"os/exec"
+
 	"strconv"
 	"time"
+
+	MQTT "github.com/eclipse/paho.mqtt.golang"
 )
 
 type Clients struct {
@@ -15,6 +19,7 @@ type Clients struct {
 }
 
 type Client struct {
+	Name             string     `json:"name"`
 	IPPort           string     `json:"ip_port"`
 	SubscriptionList []string   `json:"subscription_list"`
 	DataFormat       DataFormat `json:"data_format"`
@@ -26,7 +31,7 @@ type DataFormat struct {
 	DataValueField string `json:"data_value_field"`
 }
 
-func Start(dataSourceChan chan string, path string) {
+func Start(dataSourceChan chan map[string][]string, path string) {
 	defer log.Print("mqtt ds - done")
 	log.Print("connect to mqtt data source")
 
@@ -37,7 +42,7 @@ func Start(dataSourceChan chan string, path string) {
 	}
 }
 
-func clientHandler(clientConfig Client, dataSourceChan chan string) {
+func clientHandler(clientConfig Client, dataSourceChan chan map[string][]string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("something goes wrong in mqtt module.\nclientConfig - %v\nMsg > %v", clientConfig, r)
@@ -56,15 +61,15 @@ func clientHandler(clientConfig Client, dataSourceChan chan string) {
 		if token := mqttClient.Connect(); token.Wait() && token.Error() != nil {
 			continue
 		}
-		SubscribeService(mqttClient, subMap, dataSourceChan, clientConfig.DataFormat)
+		SubscribeService(mqttClient, subMap, dataSourceChan, clientConfig.DataFormat, clientConfig.Name)
 		log.Print("reconnect to mqtt broker")
 	}
 }
 
-func SubscribeService(c MQTT.Client, subMap map[string]byte, dataSourceChan chan string, dataFormat DataFormat) {
+func SubscribeService(c MQTT.Client, subMap map[string]byte, dataSourceChan chan map[string][]string, dataFormat DataFormat, moduleName string) {
 	defer c.Disconnect(250)
 
-	if token := c.SubscribeMultiple(subMap, CallbackModifier(dataSourceChan, dataFormat)); token.Wait() &&
+	if token := c.SubscribeMultiple(subMap, CallbackModifier(dataSourceChan, dataFormat, moduleName)); token.Wait() &&
 		token.Error() != nil {
 		fmt.Println(token.Error())
 		return
@@ -79,14 +84,14 @@ func SubscribeService(c MQTT.Client, subMap map[string]byte, dataSourceChan chan
 	}
 }
 
-func CallbackModifier(dataSourceChan chan string, dataFormat DataFormat) MQTT.MessageHandler {
+func CallbackModifier(dataSourceChan chan map[string][]string, dataFormat DataFormat, moduleName string) MQTT.MessageHandler {
 	var res MQTT.MessageHandler = func(client MQTT.Client, msg MQTT.Message) {
-		dataSourceChan <- getValueFromJSON(dataFormat, msg.Payload())
+		dataSourceChan <- getValueFromJSON(dataFormat, msg.Payload(), moduleName)
 	}
 	return res
 }
 
-func getValueFromJSON(dataFormat DataFormat, payload []byte) string {
+func getValueFromJSON(dataFormat DataFormat, payload []byte, name string) map[string][]string {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("Getting data from json error. Error > %v\nMSG>%s", r, payload)
@@ -94,7 +99,7 @@ func getValueFromJSON(dataFormat DataFormat, payload []byte) string {
 	}()
 	data := make(map[string]interface{})
 	if err := json.Unmarshal(payload, &data); err != nil {
-		return ""
+		return map[string][]string{}
 	}
 	res := make(map[string]interface{})
 	Flatten2("", data, res)
@@ -103,12 +108,32 @@ func getValueFromJSON(dataFormat DataFormat, payload []byte) string {
 		dataType = "3"
 	}
 
-	return fmt.Sprintf(
-		"%s:%s:%s",
-		res[dataFormat.DataNameField],
-		dataType,
-		res[dataFormat.DataValueField],
-	)
+	return map[string][]string{
+		name: {
+			getCurTime(),
+			fmt.Sprintf(
+				"%s|%s|%s",
+				res[dataFormat.DataNameField],
+				dataType,
+				res[dataFormat.DataValueField],
+			),
+		},
+	}
+
+	// return fmt.Sprintf(
+	// 	"%s:%s:%s",
+	// 	res[dataFormat.DataNameField],
+	// 	dataType,
+	// 	res[dataFormat.DataValueField],
+	// )
+}
+
+func getCurTime() string {
+	out, err := exec.Command("gpsctl", "-e").Output()
+	if err != nil || bytes.Equal(out, []byte("1970-01-01 02:00:00")) {
+		out = []byte(time.Now().Format("2006-01-02 15:04:05"))
+	}
+	return string(out[8:10]) + string(out[5:7]) + string(out[2:4]) + string(out[11:13]) + string(out[14:16]) + string(out[17:19])
 }
 
 func Flatten2(prefix string, src map[string]interface{}, dest map[string]interface{}) {
@@ -156,6 +181,7 @@ func getConfig(path string) *json.Decoder {
 func setDefaultMqttConfig() *Clients {
 	return &Clients{
 		[]Client{{
+			Name:             "unknown device",
 			IPPort:           "127.0.0.1:18883",
 			SubscriptionList: []string{"#"},
 			DataFormat: DataFormat{

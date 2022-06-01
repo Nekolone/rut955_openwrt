@@ -1,38 +1,72 @@
 package dataProcessingService
 
 import (
+	"bytes"
 	"fmt"
-	"github.com/fatih/set"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 )
 
-func getDeviceData(dataSourceChan chan string) [][]string {
-	var dataList []string
-	dataSet := set.New(set.ThreadSafe)
+func getDeviceData(dataSourceChan chan map[string][]string) (res []string) {
+	// var dataList []string
+	// dataSourceChan = 'mqtt_mod1':{"time", "data"}
+	//
+	//res = map{
+	//	"mqtt_mod1":{
+	//		{time, data},
+	//		{time, data},
+	//		{time, data}
+	//  },
+	//   "mqtt_mod2":{
+	//		{time, data},
+	//		{time, data},
+	//		{time, data}
+	//  }
+	//}
+	// dataSet := set.New(set.ThreadSafe)
+	dataList := make(map[string][][]string)
 	for {
 		select {
 		case data := <-dataSourceChan:
-			dataSet.Add(data)
-		default:
-			dataList = nil
-			for _, data := range dataSet.List() {
-				dataList = append(dataList, fmt.Sprintf("%v", data))
+			for k := range data {
+				dataList[k] = append(dataList[k], data[k])
 			}
-			return makeSlices(100, dataList)
+			// dataSet.Add(data)
+		default:
+			for k := range dataList {
+				// param := fmt.Sprintf("%v:string:%v", k, strings.Join(getParamData(dataList[k]),"%"))
+				res = append(res, fmt.Sprintf("%v:list:%v", k, strings.Join(getParamData(dataList[k]), "%")))
+			}
+			// dataList = nil
+			// for _, data := range dataSet.List() {
+			// 	dataList = append(dataList, fmt.Sprintf("%v", data))
+			// }
+			// return makeSlices(100, dataList)
 		}
 	}
 }
 
+func getParamData(dataList [][]string) (res []string) {
+	for _, v := range dataList {
+		res = append(res, strings.Join(v, "*"))
+	}
+	return
+}
+
+// func getSubParamData(data []string) []string{
+
+// }
+
 func getDateTime() string {
 	out, err := exec.Command("gpsctl", "-e").Output()
-	if err != nil {
+	if err != nil || bytes.Equal(out, []byte("1970-01-01 02:00:00")) {
 		out = []byte(time.Now().Format("2006-01-02 15:04:05"))
 	}
 	return string(out[8:10]) + string(out[5:7]) + string(out[2:4]) + ";" + string(out[11:13]) + string(out[14:16]) + string(out[17:19])
 }
+
 
 func getIbutton() string {
 	return "NA"

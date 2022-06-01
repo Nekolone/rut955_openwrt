@@ -1,6 +1,7 @@
 {
   "list": [
     {
+      "name": "custom1",
       "mode": "auto",
       "ip": "none",
       "port": "32211"

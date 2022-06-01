@@ -12,12 +12,13 @@ type Custom struct {
 	List []List `json:"list"`
 }
 type List struct {
+	Name string `json:"name"`
 	Mode string `json:"mode"`
 	IP   string `json:"ip"`
 	Port string `json:"port"`
 }
 
-func Start(dataSourceChan chan string, path string) {
+func Start(dataSourceChan chan map[string][]string, path string) {
 	defer log.Print("custom ds - done")
 	log.Print("connect to custom data source")
 
@@ -28,7 +29,7 @@ func Start(dataSourceChan chan string, path string) {
 	}
 }
 
-func customHandler(module List, dataSourceChan chan string) {
+func customHandler(module List, dataSourceChan chan map[string][]string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("something goes wrong in custom module.\nmodule - %v\nMsg > %v", module, r)
@@ -44,11 +45,11 @@ func customHandler(module List, dataSourceChan chan string) {
 	}
 	serverConnection, err := net.Listen("tcp", address)
 	if err != nil {
-		log.Panicf("listenService error msg> %v",err)
+		log.Panicf("listenService error msg> %v", err)
 	}
 	defer serverConnection.Close()
 
-	listenService(serverConnection, dataSourceChan)
+	listenService(serverConnection, dataSourceChan, module.Name)
 }
 
 func getOutboundIP() string {
@@ -72,6 +73,7 @@ func setDefaultCustomConfig() *Custom {
 	return &Custom{
 		List: []List{
 			{
+				Name: "unknown_custom_device",
 				Mode: "auto",
 				IP:   "none",
 				Port: "32211",
@@ -93,13 +95,13 @@ func getCustomConfig(path string) (cfg *Custom) {
 	return
 }
 
-func getConfig(path string) *json.Decoder {
-	configFile, err := os.Open(path)
-	if err != nil {
-		log.Printf("Using defaults. Bad config path : %v", path)
-		return nil
-	}
-	defer configFile.Close()
-	v := json.NewDecoder(configFile)
-	return v
-}
+// func getConfig(path string) *json.Decoder {
+// 	configFile, err := os.Open(path)
+// 	if err != nil {
+// 		log.Printf("Using defaults. Bad config path : %v", path)
+// 		return nil
+// 	}
+// 	defer configFile.Close()
+// 	v := json.NewDecoder(configFile)
+// 	return v
+// }

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"rut_wialon_gateway/internal/modules/custom"
-	"rut_wialon_gateway/internal/modules/modbus_rut"
 	"rut_wialon_gateway/internal/modules/mqtt"
 	"strings"
 	"time"
@@ -16,10 +15,10 @@ import (
 //}
 
 type Config struct {
-	DataSourceChannelSize int `json:"data_source_channel_size"`
+	DataSourceChannelSize int     `json:"data_source_channel_size"`
 	TickerDefTime         float64 `json:"ticker_def_time"`
 	SpeedCoefficient      float64 `json:"speed_coefficient"`
-	CourseDiffTrigger     int `json:"course_diff_trigger"`
+	CourseDiffTrigger     int     `json:"course_diff_trigger"`
 }
 
 type Module struct {
@@ -31,7 +30,7 @@ type ModulesConfig struct {
 	Modules []Module `json:"modules"`
 }
 
-func Start(dataChan chan string, config *Config, modulesConfig *ModulesConfig, dataSourceChan chan string) {
+func Start(dataChan chan string, config *Config, modulesConfig *ModulesConfig, dataSourceChan chan map[string][]string) {
 	defer func() {
 		if r := recover(); r == nil {
 			log.Printf("recover in data processing service. Panic > %v", r)
@@ -50,7 +49,7 @@ func Start(dataChan chan string, config *Config, modulesConfig *ModulesConfig, d
 	}
 }
 
-func (config *Config) dataToWialonModule(dataChan, dataSourceChan, done chan string) {
+func (config *Config) dataToWialonModule(dataChan chan string, dataSourceChan chan map[string][]string, done chan string) {
 	defer func() {
 		if r := recover(); r != nil {
 			done <- fmt.Sprintf("error in sendToDataChan, need restart. Reason: %v", r)
@@ -78,21 +77,25 @@ func diff(a, b int) int {
 	return a - b
 }
 
-func sendToDataChan(dataChan, dataSourceChan chan string) {
+func sendToDataChan(dataChan chan string, dataSourceChan chan map[string][]string) {
 	paramsList := getDeviceData(dataSourceChan)
+	// paramList = [[params_block1],[params_block2]]
 	var attr = []string{
 		getDateTime(), getLat(), getLon(), getSpeed(), getCourse(), getHeight(), getSats(), getHdop(), getInputs(),
 		getOutputs(), getAdc(), getIbutton(),
 	}
 	dataType := "D"
-	for _, params := range paramsList {
-		params = remove(params, "")
-		if len(params) == 0 {
-			params = []string{"NA"}
-		}
-		dataChan <- convertDataToSend(dataType, attr, params)
-	}
+	dataChan <- convertDataToSend(dataType, attr, paramsList)
+	// for
+	// for _, params := range paramsList {
+	// 	params = remove(params, "")
+	// 	if len(params) == 0 {
+	// 		params = []string{"NA"}
+	// 	}
+	// 	dataChan <- convertDataToSend(dataType, attr, params)
 }
+
+// }
 
 func remove(s []string, r string) []string {
 	for i, v := range s {
@@ -103,7 +106,7 @@ func remove(s []string, r string) []string {
 	return s
 }
 
-func (config *ModulesConfig) connectDataSourceModules(dataSourceChan chan string) {
+func (config *ModulesConfig) connectDataSourceModules(dataSourceChan chan map[string][]string) {
 	select {
 	case d := <-dataSourceChan:
 		dataSourceChan <- d
@@ -116,15 +119,15 @@ func (config *ModulesConfig) connectDataSourceModules(dataSourceChan chan string
 	}
 }
 
-func startModule(module Module, dataSourceChan chan string) {
+func startModule(module Module, dataSourceChan chan map[string][]string) {
 	defer func() {
 		if r := recover(); r != nil {
 			log.Printf("Recover painc from module. Panic msg > %v", r)
 		}
 	}()
 	switch module.Name {
-	case "modbus":
-		modbus_rut.Start(dataSourceChan, module.ModuleConfigPath)
+	// case "modbus":
+	// 	modbus_rut.Start(dataSourceChan, module.ModuleConfigPath)
 	case "mqtt":
 		mqtt.Start(dataSourceChan, module.ModuleConfigPath)
 	case "custom":
