@@ -21,7 +21,7 @@ func listenService(serverConnection net.Listener, deviceDataChan chan map[string
 }
 
 func getCurTime() string {
-	out := []byte(time.Now().Format("2006-01-02 15:04:05:000000"))
+	out := []byte(time.Now().Format("2006-01-02 15:04:05.000000"))
 	return string(out[8:10]) + string(out[5:7]) + string(out[2:4]) + string(out[11:13]) + string(out[14:16]) + string(out[17:19]) + string(out[20:26])
 }
 
