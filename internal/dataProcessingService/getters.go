@@ -31,15 +31,18 @@ func getDeviceData(dataSourceChan chan map[string][]string) (res []string) {
 	for {
 		select {
 		case data := <-dataSourceChan:
+			log.Print("start get")
 			for k := range data {
 				dataList[k] = append(dataList[k], data[k])
 			}
 			// dataSet.Add(data)
 		default:
+			log.Print("final get")
 			for k := range dataList {
 				// param := fmt.Sprintf("%v:string:%v", k, strings.Join(getParamData(dataList[k]),"%"))
 				res = append(res, fmt.Sprintf("%v:list:%v", k, strings.Join(getParamData(dataList[k]), "%")))
 			}
+			return
 			// dataList = nil
 			// for _, data := range dataSet.List() {
 			// 	dataList = append(dataList, fmt.Sprintf("%v", data))
@@ -68,7 +71,6 @@ func getDateTime() string {
 	log.Print("gata get correct")
 	return string(out[8:10]) + string(out[5:7]) + string(out[2:4]) + ";" + string(out[11:13]) + string(out[14:16]) + string(out[17:19])
 }
-
 
 func getIbutton() string {
 	return "NA"
